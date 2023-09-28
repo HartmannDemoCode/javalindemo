@@ -18,9 +18,10 @@ public class RoutesDemo {
             path("/person", () -> {
                 get("/",personController.getAll());
                 get("/{id}",personController.getById());
-                post("/",personController.create());
-                put("/{id}",personController.update());
-                delete("/{id}",personController.delete());
+//                TODO: Covered next time on REST:
+//                post("/",personController.create());
+//                put("/{id}",personController.update());
+//                delete("/{id}",personController.delete());
             });
         };
     }
