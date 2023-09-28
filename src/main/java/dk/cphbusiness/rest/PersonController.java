@@ -1,17 +1,19 @@
 package dk.cphbusiness.rest;
 
+import com.google.gson.JsonObject;
 import dk.cphbusiness.dtos.PersonDTO;
 import io.javalin.http.Handler;
 import io.javalin.validation.BodyValidator;
 
 import java.util.Map;
 
-public class PersonController implements IController{
+public class PersonController implements IController {
     Map<Integer, PersonDTO> persons = Map.of(
             1, new PersonDTO("Kurt", 23),
             2, new PersonDTO("Hanne", 21),
             3, new PersonDTO("Tina", 25)
     );
+
     @Override
     public Handler getAll() {
         return ctx -> {
@@ -23,7 +25,7 @@ public class PersonController implements IController{
     public Handler getById() {
         return ctx -> {
             ctx.pathParamAsClass("id", Integer.class)
-                .check(id -> id > 0 && id < 4, "Id must be between 1 and 3"); // Use a path param validator
+                    .check(id -> id > 0 && id < 4, "Id must be between 1 and 3"); // Use a path param validator
             int id = Integer.parseInt(ctx.pathParam("id"));
             ctx.json(persons.get(id));
         };
@@ -57,6 +59,21 @@ public class PersonController implements IController{
             int id = Integer.parseInt(ctx.pathParam("id"));
             PersonDTO person = this.persons.remove(id);
             ctx.json(person);
+        };
+    }
+
+    public Handler getByName() {
+        return ctx -> {
+            persons.forEach((key, value) -> {
+                        if (value.getName().equals(ctx.pathParam("name"))) {
+                            ctx.json(value);
+                            return;
+                        }
+                    }
+            );
+            JsonObject message = new JsonObject();
+            message.addProperty("message", "No person with that name");
+            ctx.status(404).json(message);
         };
     }
 }

@@ -31,11 +31,12 @@ public class RoutesDemo {
         return () -> {
             path("/person", () -> {
                 get("/", pc.getAll());
-                post("/", pc.create());
+//                post("/", pc.create());
                 path("/{id}", () -> {
                     get("/", pc.getById());
-                    put("/", pc.update());
-                    delete("/", pc.delete());
+                    get("/name/{name}", pc.getByName())sw
+//                    put("/", pc.update());
+//                    delete("/", pc.delete());
                 });
             });
         };
