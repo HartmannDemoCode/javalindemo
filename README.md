@@ -127,7 +127,7 @@ The context object contains information about the request and response.
 The context object has a lot of methods. The following are the most common:
 
 #### Request Methods
-1. `body()                                // request body as string`
+1. `bodyAsClass(clazz)                    // request body as specified class (deserialized from JSON)`
 2. `pathParam("name")                     // path parameter by name as string`
 3. `contentType()                         // request content type`
 4. `header("name")                        // request header by name (can be used with Header.HEADERNAME)`
