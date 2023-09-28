@@ -3,6 +3,7 @@ package dk.cphbusiness.rest;
 import io.javalin.Javalin;
 import io.javalin.apibuilder.EndpointGroup;
 
+
 import static io.javalin.apibuilder.ApiBuilder.*;
 
 public class RoutesDemo {
@@ -22,6 +23,20 @@ public class RoutesDemo {
 //                post("/",personController.create());
 //                put("/{id}",personController.update());
 //                delete("/{id}",personController.delete());
+            });
+        };
+    }
+    private static EndpointGroup alternative(){
+        PersonController pc = new PersonController();
+        return () -> {
+            path("/person", () -> {
+                get("/", pc.getAll());
+                post("/", pc.create());
+                path("/{id}", () -> {
+                    get("/", pc.getById());
+                    put("/", pc.update());
+                    delete("/", pc.delete());
+                });
             });
         };
     }
