@@ -34,7 +34,7 @@ public class RoutesDemo {
 //                post("/", pc.create());
                 path("/{id}", () -> {
                     get("/", pc.getById());
-                    get("/name/{name}", pc.getByName())sw
+                    get("/name/{name}", pc.getByName());
 //                    put("/", pc.update());
 //                    delete("/", pc.delete());
                 });
