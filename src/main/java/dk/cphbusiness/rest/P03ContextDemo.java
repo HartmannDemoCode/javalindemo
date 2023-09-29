@@ -1,21 +1,13 @@
 package dk.cphbusiness.rest;
 
+import dk.cphbusiness.controllers.ContextDemoController;
 import io.javalin.Javalin;
 import io.javalin.apibuilder.EndpointGroup;
-import io.javalin.config.JavalinConfig;
-import io.javalin.http.Context;
-import io.javalin.http.Handler;
-import io.javalin.plugin.bundled.RouteOverviewPlugin;
-import io.javalin.security.AccessManager;
-import io.javalin.security.RouteRole;
-import org.jetbrains.annotations.NotNull;
-
-import java.util.Set;
 
 import static io.javalin.apibuilder.ApiBuilder.*;
 import static io.javalin.apibuilder.ApiBuilder.path;
 
-public class ContextDemo {
+public class P03ContextDemo {
     private static ContextDemoController cdc = new ContextDemoController();
     public static void main(String[] args) {
         Javalin app = Javalin.create(config-> { // create method takes a Consumer<JavalinConfig> as argument to configure the server

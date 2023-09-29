@@ -1,4 +1,4 @@
-package dk.cphbusiness.rest;
+package dk.cphbusiness.controllers;
 
 import com.google.gson.JsonObject;
 import dk.cphbusiness.dtos.PersonDTO;

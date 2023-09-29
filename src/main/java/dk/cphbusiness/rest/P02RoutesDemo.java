@@ -1,12 +1,13 @@
 package dk.cphbusiness.rest;
 
+import dk.cphbusiness.controllers.PersonController;
 import io.javalin.Javalin;
 import io.javalin.apibuilder.EndpointGroup;
 
 
 import static io.javalin.apibuilder.ApiBuilder.*;
 
-public class RoutesDemo {
+public class P02RoutesDemo {
     public static void main(String[] args) {
         // A more complex web server using routes and endpoint groups
         Javalin app = Javalin.create().start(7007);
