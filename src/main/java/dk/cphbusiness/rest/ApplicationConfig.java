@@ -1,9 +1,7 @@
 package dk.cphbusiness.rest;
 
-//import dk.cphbusiness.dtos.UserDTO;
-//import dk.cphbusiness.errorHandling.ApiException;
-//import dk.cphbusiness.rest.controllers.SecurityController;
-//import dk.cphbusiness.utils.Utils;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import dk.cphbusiness.exceptions.ApiException;
 import io.javalin.Javalin;
 import io.javalin.apibuilder.EndpointGroup;
 import io.javalin.config.JavalinConfig;
@@ -13,17 +11,19 @@ import static io.javalin.apibuilder.ApiBuilder.path;
 //import io.javalin.plugin.bundled.
 
 public class ApplicationConfig {
+    private ObjectMapper jsonMapper = new ObjectMapper();
     private static ApplicationConfig appConfig;
-    private Javalin app;
+    private static Javalin app;
     private ApplicationConfig() {
     }
     public static ApplicationConfig getInstance() {
         if(appConfig == null) {
             appConfig = new ApplicationConfig();
+            initiateServer();
         }
         return appConfig;
     }
-    public ApplicationConfig initiateServer() {
+    public static ApplicationConfig initiateServer() {
         app = Javalin.create(config -> {
             config.plugins.enableDevLogging(); // enables extensive development logging in terminal
             config.http.defaultContentType = "application/json"; // default content type for requests
@@ -33,14 +33,14 @@ public class ApplicationConfig {
         return appConfig;
     }
 
-    public Javalin setRoutes(Javalin app, EndpointGroup routes) {
+    public ApplicationConfig setRoutes(EndpointGroup routes) {
         app.routes(()-> {
             path("/", routes); // e.g. /person
         });
-        return app;
+        return appConfig;
     }
 
-    public Javalin setCORS(Javalin app) {
+    public ApplicationConfig setCORS() {
         app.updateConfig(config-> {
             config.accessManager((handler, ctx, permittedRoles) -> {
                 ctx.header("Access-Control-Allow-Origin", "*");
@@ -52,10 +52,10 @@ public class ApplicationConfig {
                     ctx.status(200).result("OK");
             });
         });
-        return app;
+        return appConfig;
     }
 
-    public Javalin setSecurityRoles(Javalin app) {
+    public ApplicationConfig setSecurityRoles() {
         app.updateConfig(config -> {
                 config.accessManager((handler, ctx, permittedRoles) -> {
             // Authorize the user based on the roles they have
@@ -67,17 +67,42 @@ public class ApplicationConfig {
 //                throw new ApiException(401, "Unauthorized");
             });
         });
-        return app;
+        return appConfig;
     }
 
 
-    public Javalin startServer(int port) {
-
+    public ApplicationConfig startServer(int port) {
         app.start(port);
-        return app;
+        return appConfig;
     }
 
 //    public static int getPort() {
 //        return Integer.parseInt(Utils.getPomProp("javalin.port"));
 //    }
+
+    public ApplicationConfig setErrorHandling(){
+        // To use this one, just set ctx.status(404) in the controller and add a ctx.attribute("message", "Your message") to the ctx
+        // Look at the PersonController: delete() method for an example
+        app.error(404, ctx -> {
+            String message =  ctx.attribute("message");
+            message = "{\"message\": \""+message+"\"}";
+            ctx.json(message);
+        });
+        return appConfig;
+    }
+
+    public ApplicationConfig setApiExceptionHandling() {
+        // tested in PersonController: getAll()
+        app.exception(ApiException.class, (e, ctx) -> {
+            int statusCode = e.getStatusCode();
+            System.out.println("Status code: " + statusCode + ", Message: " + e.getMessage());
+            var on = jsonMapper
+                    .createObjectNode()
+                    .put("status", statusCode)
+                    .put("message", e.getMessage());
+            ctx.json(on);
+        });
+        return appConfig;
+    }
+
 }

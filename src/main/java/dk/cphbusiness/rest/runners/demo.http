@@ -27,4 +27,12 @@ GET http://{{url}}/context_response_demo/json
 GET http://{{url}}/context_response_demo/html
 ### Use JTE TEMPLATES: https://javalin.io/tutorials/jte
 GET http://{{url}}/context_response_demo/render
+### Full CRUD example ###
+GET http://localhost:7007/api/person
 ###
+GET http://{{url}}/person/1
+###
+GET http://{{url}}/person/name/Thomas
+###
+GET http://localhost:7007/demoapp/api/context_response_demo/header
+

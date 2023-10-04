@@ -1,23 +1,34 @@
 package dk.cphbusiness.controllers;
 
-import com.google.gson.JsonObject;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import dk.cphbusiness.dtos.PersonDTO;
+import dk.cphbusiness.exceptions.ApiException;
+import io.javalin.http.Context;
 import io.javalin.http.Handler;
 import io.javalin.validation.BodyValidator;
 
+import java.io.IOException;
 import java.util.Map;
 
 public class PersonController implements IController {
     Map<Integer, PersonDTO> persons = Map.of(
-            1, new PersonDTO("Kurt", 23),
-            2, new PersonDTO("Hanne", 21),
-            3, new PersonDTO("Tina", 25)
+        1, new PersonDTO("Kurt", 23),
+        2, new PersonDTO("Hanne", 21),
+        3, new PersonDTO("Tina", 25)
     );
 
     @Override
     public Handler getAll() {
-        return ctx -> {
-            ctx.json(persons);
+        int testValue = 10;
+        return new Handler(){
+            @Override
+            public void handle(Context ctx) throws Exception {
+                if (testValue == 10) {
+                    throw new ApiException(500, "Something went wrong in the getAll method in the PersonController");
+                }
+                ctx.json(persons);
+            }
         };
     }
 
@@ -25,8 +36,10 @@ public class PersonController implements IController {
     public Handler getById() {
         return ctx -> {
             ctx.pathParamAsClass("id", Integer.class)
-                    .check(id -> id > 0 && id < 4, "Id must be between 1 and 3"); // Use a path param validator
+            .check(id -> id > 0 && id < 4, "Id must be between 1 and 3"); // Use a path param validator
             int id = Integer.parseInt(ctx.pathParam("id"));
+            if(!persons.containsKey(id))
+                throw new ApiException(404, "No person with that id");
             ctx.json(persons.get(id));
         };
     }
@@ -44,7 +57,8 @@ public class PersonController implements IController {
     @Override
     public Handler update() {
         return ctx -> {
-            ctx.pathParamAsClass("id", Integer.class)
+            ctx
+                    .pathParamAsClass("id", Integer.class) // returns a validator
                     .check(id -> id > 0 && id < 4, "Id must be between 1 and 3"); // Use a path param validator
             int id = Integer.parseInt(ctx.pathParam("id"));
             PersonDTO person = ctx.bodyAsClass(PersonDTO.class);
@@ -57,6 +71,11 @@ public class PersonController implements IController {
     public Handler delete() {
         return ctx -> {
             int id = Integer.parseInt(ctx.pathParam("id"));
+            if(! persons.containsKey(id)){
+                ctx.status(404);
+                ctx.attribute("error", String.format("No person with id: {id}", id));
+                return;
+            }
             PersonDTO person = this.persons.remove(id);
             ctx.json(person);
         };
@@ -64,16 +83,18 @@ public class PersonController implements IController {
 
     public Handler getByName() {
         return ctx -> {
-            persons.forEach((key, value) -> {
-                        if (value.getName().equals(ctx.pathParam("name"))) {
-                            ctx.json(value);
-                            return;
-                        }
-                    }
-            );
-            JsonObject message = new JsonObject();
-            message.addProperty("message", "No person with that name");
-            ctx.status(404).json(message);
+            try {
+                PersonDTO found = persons
+                        .values()
+                        .stream()
+                        .filter((person) -> person.getName().equals(ctx.pathParam("name")))
+                        .toList()
+                        .get(0);
+                ctx.json(found);
+            } catch (IndexOutOfBoundsException e) {
+                ctx.status(404);
+                ctx.attribute("message", String.format("No person with name: %s", ctx.pathParam("name")));
+            }
         };
     }
 }
