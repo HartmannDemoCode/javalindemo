@@ -2,6 +2,7 @@ package dk.cphbusiness.rest;
 
 import dk.cphbusiness.controllers.IController;
 import dk.cphbusiness.controllers.PersonController;
+import dk.cphbusiness.data.HibernateConfig;
 
 import static io.javalin.apibuilder.ApiBuilder.*;
 
@@ -11,22 +12,14 @@ public class P04FullCRUDDemo {
         ApplicationConfig
                 .getInstance()
                 .startServer(7007)
-                .setRoutes(()->{
-                    path("/person", () -> {
-                        get("/", personController.getAll());
-                        get("/{id}", personController.getById());
-                        post("/", personController.create());
-                        put("/{id}", personController.update());
-                        delete("/{id}", personController.delete());
-                    });
-                })
+                .setRoutes(new RestRoutes().getPersonRoutes())
                 .setRoutes(()->{
                     path("/test", () -> {
-                        get("/", ctx->ctx.result("Hello World"));
+                        get("/", ctx->ctx.contentType("text/plain").result("Hello World"));
                         get("/{id}", ctx->ctx.result("Hello World "+ctx.pathParam("id")));
-                        post("/", ctx->ctx.result("Hello World "+ctx.body()));
-                        put("/{id}", ctx->ctx.result("Url: "+ctx.fullUrl()+", Path parameter: "+ctx.pathParam("id")+", Body: "+ctx.body()));
-                        delete("/{id}", ctx->ctx.result("Hello World "+ctx.pathParam("id")));
+//                        post("/", ctx->ctx.result("Hello World "+ctx.body()));
+//                        put("/{id}", ctx->ctx.result("Url: "+ctx.fullUrl()+", Path parameter: "+ctx.pathParam("id")+", Body: "+ctx.body()));
+//                        delete("/{id}", ctx->ctx.result("Hello World "+ctx.pathParam("id")));
                     });
                 });
     }

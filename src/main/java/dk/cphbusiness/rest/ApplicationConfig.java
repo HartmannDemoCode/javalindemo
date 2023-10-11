@@ -2,10 +2,15 @@ package dk.cphbusiness.rest;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import dk.cphbusiness.exceptions.ApiException;
+import dk.cphbusiness.security.ISecurityController;
+import dk.cphbusiness.security.SecurityController;
 import io.javalin.Javalin;
 import io.javalin.apibuilder.EndpointGroup;
-import io.javalin.config.JavalinConfig;
 import io.javalin.plugin.bundled.RouteOverviewPlugin;
+import jakarta.persistence.EntityManagerFactory;
+
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import static io.javalin.apibuilder.ApiBuilder.path;
 //import io.javalin.plugin.bundled.
@@ -16,15 +21,19 @@ public class ApplicationConfig {
     private static Javalin app;
     private ApplicationConfig() {
     }
+
     public static ApplicationConfig getInstance() {
-        if(appConfig == null) {
+        if (appConfig == null) {
             appConfig = new ApplicationConfig();
             initiateServer();
         }
         return appConfig;
     }
+
     public static ApplicationConfig initiateServer() {
         app = Javalin.create(config -> {
+            // add an accessManager. Even though it does nothing, now it is there to be updated later.
+//            config.accessManager(((handler, context, set) -> {}));
             config.plugins.enableDevLogging(); // enables extensive development logging in terminal
             config.http.defaultContentType = "application/json"; // default content type for requests
             config.routing.contextPath = "/api"; // base path for all routes
@@ -34,14 +43,14 @@ public class ApplicationConfig {
     }
 
     public ApplicationConfig setRoutes(EndpointGroup routes) {
-        app.routes(()-> {
+        app.routes(() -> {
             path("/", routes); // e.g. /person
         });
         return appConfig;
     }
 
     public ApplicationConfig setCORS() {
-        app.updateConfig(config-> {
+        app.updateConfig(config -> {
             config.accessManager((handler, ctx, permittedRoles) -> {
                 ctx.header("Access-Control-Allow-Origin", "*");
                 ctx.header("Access-Control-Allow-Methods", "GET, POST, PUT, PATCH, DELETE, OPTIONS");
@@ -55,16 +64,28 @@ public class ApplicationConfig {
         return appConfig;
     }
 
-    public ApplicationConfig setSecurityRoles() {
+    public ApplicationConfig checkSecurityRoles() {
+        // Check roles on the user (ctx.attribute("username") and compare with permittedRoles using securityController.authorize()
         app.updateConfig(config -> {
-                config.accessManager((handler, ctx, permittedRoles) -> {
-            // Authorize the user based on the roles they have
-//            SecurityController securityController = SecurityController.getController();
-//            UserDTO user = ctx.attribute("user");
-//            if (securityController.authorize(user, permittedRoles))
-//                handler.handle(ctx);
-//            else
-//                throw new ApiException(401, "Unauthorized");
+
+            config.accessManager((handler, ctx, permittedRoles) -> {
+                // permitted roles are defined in the routes: get("/", ctx -> ctx.result("Hello World"), Role.ANYONE);
+
+                Set<String> allowedRoles = permittedRoles.stream().map(role -> role.toString().toUpperCase()).collect(Collectors.toSet());
+                if(allowedRoles.contains("ANYONE")) {
+                    handler.handle(ctx);
+                    return;
+                }
+                ISecurityController securityController = SecurityController.getInstance();
+
+                String userName = ctx.attribute("userName");
+                if(userName == null) ctx.json(jsonMapper.createObjectNode().put("msg","Not authorized. No username were added from the token")).status(401);
+
+                System.out.println("NOW CHECKING THE USERS ROLES");
+                if (securityController.authorize(userName, allowedRoles))
+                    handler.handle(ctx);
+                else
+                    throw new ApiException(401, "Unauthorized");
             });
         });
         return appConfig;
@@ -73,19 +94,24 @@ public class ApplicationConfig {
 
     public ApplicationConfig startServer(int port) {
         app.start(port);
+
         return appConfig;
     }
 
+    public ApplicationConfig stopServer(){
+        app.stop();
+        return appConfig;
+    }
 //    public static int getPort() {
 //        return Integer.parseInt(Utils.getPomProp("javalin.port"));
 //    }
 
-    public ApplicationConfig setErrorHandling(){
+    public ApplicationConfig setErrorHandling() {
         // To use this one, just set ctx.status(404) in the controller and add a ctx.attribute("message", "Your message") to the ctx
         // Look at the PersonController: delete() method for an example
         app.error(404, ctx -> {
-            String message =  ctx.attribute("message");
-            message = "{\"message\": \""+message+"\"}";
+            String message = ctx.attribute("message");
+            message = "{\"message\": \"" + message + "\"}";
             ctx.json(message);
         });
         return appConfig;
@@ -101,6 +127,13 @@ public class ApplicationConfig {
                     .put("status", statusCode)
                     .put("message", e.getMessage());
             ctx.json(on);
+        });
+        return appConfig;
+    }
+    public ApplicationConfig setGeneralExceptionHandling(){
+        app.exception(Exception.class, (e,ctx)->{
+            e.printStackTrace();
+            ctx.result(e.getMessage());
         });
         return appConfig;
     }

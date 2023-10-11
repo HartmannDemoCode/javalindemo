@@ -1,6 +1,7 @@
 package dk.cphbusiness.rest;
 
 import dk.cphbusiness.controllers.PersonController;
+import dk.cphbusiness.data.HibernateConfig;
 
 import static io.javalin.apibuilder.ApiBuilder.*;
 
@@ -8,21 +9,13 @@ public class P05ErrorHandling {
     // ApplicationConfig.setApiExceptionHandling() is called in the ApplicationConfig constructor
     //
     private static PersonController personController = new PersonController();
+    private static RestRoutes restRoutes = new RestRoutes();
 
     public static void main(String[] args) {
         ApplicationConfig
                 .getInstance()
                 .startServer(7007)
-                .setRoutes(() -> {
-                    path("/person", () -> {
-                        get("/", personController.getAll());
-                        get("/{id}", personController.getById());
-                        get("/name/{name}", personController.getByName());
-                        post("/", personController.create());
-                        put("/{id}", personController.update());
-                        delete("/{id}", personController.delete());
-                    });
-                })
+                .setRoutes(restRoutes.getPersonRoutes())
                 .setRoutes(() -> {
                     path("/test", () -> {
                         get("/", ctx -> ctx.result("Hello World"));

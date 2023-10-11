@@ -1,0 +1,22 @@
+GET http://localhost:7007/api/auth/demo
+###
+POST http://localhost:7007/api/auth/register
+
+{
+    "username": "test",
+    "password": "test"
+}
+###
+POST http://localhost:7007/api/auth/login
+
+{
+    "username": "test",
+    "password": "test"
+}
+###
+GET http://localhost:7007/api/protected/user_demo
+Authorization: Baerer eyJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJUaG9tYXMgSGFydG1hbm4iLCJzdWIiOiJ0ZXN0IiwiZXhwIjoxNjk3MDQxNjQ4LCJyb2xlcyI6InVzZXIiLCJ1c2VybmFtZSI6InRlc3QifQ.8b7o0ADrpO11iBfIkyb9RHvgZBD6MXf8xoy9DIG_j6o
+###
+GET http://localhost:7007/api/protected/admin_demo
+Authorization: Baerer eyJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJUaG9tYXMgSGFydG1hbm4iLCJzdWIiOiJ0ZXN0IiwiZXhwIjoxNjk3MDQxNjQ4LCJyb2xlcyI6InVzZXIiLCJ1c2VybmFtZSI6InRlc3QifQ.8b7o0ADrpO11iBfIkyb9RHvgZBD6MXf8xoy9DIG_j6o
+###

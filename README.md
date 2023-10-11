@@ -182,11 +182,100 @@ See https://javalin.io/documentation#validators for information about how to val
 ### Exception Mapping
 See https://javalin.io/documentation#exception-mapping for information about how to map exceptions to status codes and error messages.
 
-
 ### Static files
 To serve static files, you can use the staticFiles method on the Javalin object:
 ```java
 app.staticFiles.location("/public");
 ```
 
-# repo auto created
+### Security
+- JWT
+- Password hashing
+
+1. Add dependencies: 
+  - hibernate
+  - postgresql
+  - restassured
+  - testcontainers
+  - jbcrypt
+2. Create User and Role Entities
+  - User has a username, password and a list of roles. When a user is created, it should be assigned a Basic User Role and password should be hashed.
+  - Role has a name
+3. Create a java interface: ISecurity
+  - It should have the following methods:
+    - User getVarifiedUser(String username, String password)
+    - boolean isUserInRole(String username, String role)
+    - User verifyToken(String token)
+    - String createToken(String username, String role)
+    - void registerUser(String username, String password)
+    - void addRoleToUser(String username, String role)
+    - void removeRoleFromUser(String username, String role)
+    - void deleteUser(String username)
+4. Create a UserDAO that implements the ISecurity Interface
+5. Create endpoints:
+  - POST /login: Returns a JWT token
+  - POST /register: Creates a new User with a hashed password and Basic User Role. That too can return a token (so user dont have to login after register)
+6. Create a SecurityController that handles:
+  - login
+  - register
+  - addRoleToUser
+  - removeRoleFromUser
+  - authenticateUser
+  - authorizeUser
+7. Create a SecurityFilter that handles:
+  - JWT token validation (IE Authentication) using app.before()
+  - Authorization (Checking for the roles assigned to the user inside the token)
+
+### RestAssured with Hamcrest and testcontainers
+1. Make sure to have restassured dependencies:
+```java
+<dependency>
+    <groupId>io.rest-assured</groupId>
+    <artifactId>rest-assured</artifactId>
+    <version>${restassured.version}</version>
+    <scope>test</scope>
+</dependency>
+<dependency>
+    <groupId>io.rest-assured</groupId>
+    <artifactId>json-schema-validator</artifactId>
+    <version>${restassured.version}</version>
+    <scope>test</scope>
+</dependency>
+```
+2. Make sure to testcontainers dependencies:
+```xml
+<dependency>
+    <groupId>org.testcontainers</groupId>
+    <artifactId>testcontainers</artifactId>
+    <version>${testcontainers.version}</version>
+    <scope>test</scope>
+</dependency>
+<dependency>
+    <groupId>org.testcontainers</groupId>
+    <artifactId>postgresql</artifactId>
+    <version>${testcontainers.version}</version>
+    <scope>test</scope>
+</dependency>
+<dependency>
+    <groupId>org.testcontainers</groupId>
+    <artifactId>jdbc</artifactId>
+    <version>${testcontainers.version}</version>
+</dependency>
+<dependency>
+    <groupId>org.testcontainers</groupId>
+    <artifactId>junit-jupiter</artifactId>
+    <version>${testcontainers.version}</version>
+    <scope>test</scope>
+</dependency>
+```
+3. Create a new test class
+4. Create @BeforeAll:
+  - Start the server
+  - Configure the server
+    - routes
+    - content type
+5. Import restassure and hamcrest:
+```java
+import static io.restassured.RestAssured.given;
+import static org.hamcrest.Matchers.*;
+```

@@ -9,26 +9,26 @@ import io.javalin.http.Handler;
 import io.javalin.validation.BodyValidator;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.Map;
 
 public class PersonController implements IController {
-    Map<Integer, PersonDTO> persons = Map.of(
+    Map<Integer, PersonDTO> persons = new HashMap(Map.of(
         1, new PersonDTO("Kurt", 23),
         2, new PersonDTO("Hanne", 21),
         3, new PersonDTO("Tina", 25)
-    );
+    ));
 
     @Override
     public Handler getAll() {
-        int testValue = 10;
-        return new Handler(){
-            @Override
-            public void handle(Context ctx) throws Exception {
-                if (testValue == 10) {
-                    throw new ApiException(500, "Something went wrong in the getAll method in the PersonController");
-                }
-                ctx.json(persons);
+        boolean isExceptionTest = false;
+        System.out.println("DETTE ER I PERSON GET ALL");
+        return ctx -> {
+            if (isExceptionTest) {
+                throw new ApiException(500, "Something went wrong in the getAll method in the PersonController");
             }
+            System.out.println("INDE I HANDLEREN ");
+            ctx.json(persons);
         };
     }
 

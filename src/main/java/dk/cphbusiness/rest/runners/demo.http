@@ -35,4 +35,11 @@ GET http://{{url}}/person/1
 GET http://{{url}}/person/name/Thomas
 ###
 GET http://localhost:7007/demoapp/api/context_response_demo/header
+###
+POST http://{{url}}/auth/login
+
+{
+    "username": "user6",
+    "password": "test123"
+}
 
