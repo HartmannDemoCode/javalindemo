@@ -9,6 +9,7 @@ public class P07SecurityDemo {
     // 3. Authenticate in SecurityController
     // 4. Authorize in SecurityController
     // 5. SecurityRoutes (auth and protected)
+    // 6. SecurityTest with Login and token send to protected
     public static void main(String[] args) {
         ApplicationConfig
                 .getInstance()
