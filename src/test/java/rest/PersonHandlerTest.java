@@ -147,7 +147,7 @@ class PersonHandlerTest {
                 .then()
                 .log().body()
 //                .body("[0].firstName", is("Hans"));
-                .body("$", hasItems(hasEntry("firstName","Peter")));
+                .body("$", hasItems(hasEntry("firstName","Kurt")));
 
         ;
     }

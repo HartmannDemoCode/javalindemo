@@ -53,6 +53,7 @@ public class SecurityTest {
     @AfterAll
     static void afterAll() {
         appConfig.stopServer();
+        HibernateConfig.setTestMode(false);
     }
 
     @BeforeEach
@@ -87,9 +88,9 @@ public class SecurityTest {
     }
     private static String securityToken;
 
-    private static void login(String role, String password) {
+    private static void login(String username, String password) {
         ObjectNode objectNode = jsonMapper.createObjectNode()
-                .put("username", role)
+                .put("username", username)
                 .put("password", password);
         String loginInput = objectNode.toString();
         securityToken = given()
