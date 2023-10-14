@@ -27,12 +27,11 @@ public class ApplicationConfig {
     public static ApplicationConfig getInstance() {
         if (appConfig == null) {
             appConfig = new ApplicationConfig();
-            initiateServer();
         }
         return appConfig;
     }
 
-    public static ApplicationConfig initiateServer() {
+    public ApplicationConfig initiateServer() {
         app = Javalin.create(config -> {
             // add an accessManager. Even though it does nothing, now it is there to be updated later.
 //            config.accessManager(((handler, context, set) -> {}));

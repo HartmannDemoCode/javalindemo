@@ -13,6 +13,7 @@ public class P07SecurityDemo {
     public static void main(String[] args) {
         ApplicationConfig
                 .getInstance()
+                .initiateServer()
                 .setRoutes(SecurityRoutes.getSecurityRoutes())
                 .setRoutes(SecurityRoutes.getSecuredRoutes())
                 .startServer(7007)

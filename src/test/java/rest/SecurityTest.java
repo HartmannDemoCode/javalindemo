@@ -37,7 +37,10 @@ public class SecurityTest {
         emfTest = HibernateConfig.getEntityManagerFactory();
 
         // Start server
-        appConfig = ApplicationConfig.getInstance().startServer(7777)
+        appConfig = ApplicationConfig.
+                getInstance()
+                .initiateServer()
+                .startServer(7777)
                 .setErrorHandling()
                 .setGeneralExceptionHandling()
                 .setRoutes(restRoutes.getPersonRoutes())

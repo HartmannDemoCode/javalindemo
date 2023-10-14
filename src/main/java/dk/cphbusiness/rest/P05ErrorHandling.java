@@ -14,6 +14,7 @@ public class P05ErrorHandling {
     public static void main(String[] args) {
         ApplicationConfig
                 .getInstance()
+                .initiateServer()
                 .startServer(7007)
                 .setRoutes(restRoutes.getPersonRoutes())
                 .setRoutes(() -> {

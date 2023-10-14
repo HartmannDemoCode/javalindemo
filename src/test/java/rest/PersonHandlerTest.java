@@ -40,6 +40,7 @@ class PersonHandlerTest {
         // Start server
         appConfig = ApplicationConfig
                 .getInstance()
+                .initiateServer()
                 .startServer(7777)
                 .setErrorHandling()
                 .setGeneralExceptionHandling()

@@ -11,6 +11,7 @@ public class P04FullCRUDDemo {
     public static void main(String[] args) {
         ApplicationConfig
                 .getInstance()
+                .initiateServer()
                 .startServer(7007)
                 .setRoutes(new RestRoutes().getPersonRoutes())
                 .setRoutes(()->{
