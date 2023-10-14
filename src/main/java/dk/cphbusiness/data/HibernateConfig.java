@@ -66,7 +66,7 @@ public class HibernateConfig {
 
 
     private static String getDBName() {
-        return Utils.getPomProp("db.name");
+        return Utils.getPropertyValue("db.name", "properties-from-pom.properties");
     }
 
     private static Properties setBaseProperties(Properties props){

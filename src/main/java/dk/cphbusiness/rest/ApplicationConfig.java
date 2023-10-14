@@ -4,8 +4,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import dk.cphbusiness.exceptions.ApiException;
 import dk.cphbusiness.security.ISecurityController;
 import dk.cphbusiness.security.SecurityController;
+import dk.cphbusiness.security.dtos.UserDTO;
 import io.javalin.Javalin;
 import io.javalin.apibuilder.EndpointGroup;
+import io.javalin.http.HttpStatus;
 import io.javalin.plugin.bundled.RouteOverviewPlugin;
 import jakarta.persistence.EntityManagerFactory;
 
@@ -76,16 +78,17 @@ public class ApplicationConfig {
                     handler.handle(ctx);
                     return;
                 }
-                ISecurityController securityController = SecurityController.getInstance();
 
-                String userName = ctx.attribute("userName");
-                if(userName == null) ctx.json(jsonMapper.createObjectNode().put("msg","Not authorized. No username were added from the token")).status(401);
+                UserDTO user = ctx.attribute("user");
+                if(user.getUsername() == null)
+                    ctx.status(HttpStatus.UNAUTHORIZED)
+                            .json(jsonMapper.createObjectNode()
+                                    .put("msg","Not authorized. No username were added from the token"));
 
-                System.out.println("NOW CHECKING THE USERS ROLES");
-                if (securityController.authorize(userName, allowedRoles))
+                if (SecurityController.getInstance().authorize(user, allowedRoles))
                     handler.handle(ctx);
                 else
-                    throw new ApiException(401, "Unauthorized");
+                    throw new ApiException(HttpStatus.UNAUTHORIZED.getCode(), "Unauthorized");
             });
         });
         return appConfig;
@@ -110,8 +113,8 @@ public class ApplicationConfig {
         // To use this one, just set ctx.status(404) in the controller and add a ctx.attribute("message", "Your message") to the ctx
         // Look at the PersonController: delete() method for an example
         app.error(404, ctx -> {
-            String message = ctx.attribute("message");
-            message = "{\"message\": \"" + message + "\"}";
+            String message = ctx.attribute("msg");
+            message = "{\"msg\": \"" + message + "\"}";
             ctx.json(message);
         });
         return appConfig;
@@ -125,8 +128,9 @@ public class ApplicationConfig {
             var on = jsonMapper
                     .createObjectNode()
                     .put("status", statusCode)
-                    .put("message", e.getMessage());
+                    .put("msg", e.getMessage());
             ctx.json(on);
+            ctx.status(statusCode);
         });
         return appConfig;
     }

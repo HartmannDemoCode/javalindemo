@@ -1,22 +1,25 @@
 package dk.cphbusiness.utils;
 
+import dk.cphbusiness.exceptions.ApiException;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
 
 public class Utils {
     public static void main(String[] args) {
-        System.out.println(getPomProp("db.name"));
+        System.out.println(getPropertyValue("db.name", "properties-from-pom.properties"));
     }
-    public static String getPomProp(String propName)  {
-        // NOTE: This will only work after building the project with maven.
-        InputStream is = Utils.class.getClassLoader().getResourceAsStream("properties-from-pom.properties");
-        Properties pomProperties = new Properties();
-        try {
-            pomProperties.load(is);
-        } catch (IOException e) {
-            e.printStackTrace();
+    public static String getPropertyValue(String propName, String ressourceName)  {
+        // REMEMBER TO BUILD WITH MAVEN FIRST. Read the property file if not deployed (else read system vars instead)
+        // Read from ressources/config.properties or from pom.xml depending on the ressourceName
+        try (InputStream is = Utils.class.getClassLoader().getResourceAsStream(ressourceName)) { //"config.properties" or "properties-from-pom.properties"
+            Properties prop = new Properties();
+            prop.load(is);
+            return prop.getProperty(propName);
+        } catch (IOException ex) {
+            ex.printStackTrace();
+            throw new ApiException(500, String.format("Could not read property %s. Did you remember to build the project with MAVEN?", propName));
         }
-        return pomProperties.getProperty(propName);
     }
 }

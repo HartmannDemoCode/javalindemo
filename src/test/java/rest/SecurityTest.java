@@ -9,6 +9,7 @@ import dk.cphbusiness.security.Role;
 import dk.cphbusiness.security.SecurityRoutes;
 import dk.cphbusiness.security.User;
 import io.javalin.http.ContentType;
+import io.restassured.RestAssured;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
 import lombok.SneakyThrows;
@@ -20,18 +21,15 @@ import static org.hamcrest.Matchers.notNullValue;
 
 public class SecurityTest {
 
-    ObjectMapper objectMapper = new ObjectMapper();
     private static ApplicationConfig appConfig;
     private static EntityManagerFactory emfTest;
     private static ObjectMapper jsonMapper = new ObjectMapper();
-    private static Object adminToken;
-    private static Object userToken;
     private static final String BASE_URL = "http://localhost:7777/api";
-    private static User user, admin, superUser;
-    private static Role userRole, adminRole;
+
 
     @BeforeAll
     static void setUpAll() {
+        RestAssured.baseURI = BASE_URL;
         RestRoutes restRoutes = new RestRoutes();
 
         // Setup test database using docker testcontainers
@@ -59,32 +57,13 @@ public class SecurityTest {
     @BeforeEach
     void setUpEach() {
         // Setup test database for each test
-        try (EntityManager em = emfTest.createEntityManager()) {
-            em.getTransaction().begin();
-            em.createQuery("DELETE FROM User u").executeUpdate();
-            em.createQuery("DELETE FROM Role r").executeUpdate();
-            user = new User("user", "user123");
-            admin = new User("admin", "admin123");
-            superUser = new User("super", "super123");
-            userRole = new Role("user");
-            adminRole = new Role("admin");
-            user.addRole(userRole);
-            admin.addRole(adminRole);
-            superUser.addRole(userRole);
-            superUser.addRole(adminRole);
-            em.persist(user);
-            em.persist(admin);
-            em.persist(superUser);
-            em.persist(userRole);
-            em.persist(adminRole);
-            em.getTransaction().commit();
-        }
+        new TestUtils().createUsersAndRoles(emfTest);
     }
 
     @Test
     public void testServerIsUp() {
         System.out.println("Testing is server UP");
-        given().when().get(BASE_URL+"/person").then().statusCode(200);
+        given().when().get("/person").then().statusCode(200);
     }
     private static String securityToken;
 
@@ -97,22 +76,36 @@ public class SecurityTest {
                 .contentType("application/json")
                 .body(loginInput)
                 //.when().post("/api/login")
-                .when().post(BASE_URL+"/auth/login")
+                .when().post("/auth/login")
                 .then()
                 .extract().path("token");
         System.out.println("TOKEN ---> " + securityToken);
     }
     @Test
-    public void testRestForAdmin() {
+    @DisplayName("Test login for user")
+    public void testRestForUser() {
         login("user", "user123");
         given()
                 .contentType("application/json")
                 .accept("application/json")
                 .header("Authorization", "Baerer "+securityToken)
                 .when()
-                .get(BASE_URL+"/protected/user_demo").then()
+                .get("/protected/user_demo").then()
                 .statusCode(200)
                 .body("msg", equalTo("Hello from USER Protected"));
     }
 
+    @Test
+    @DisplayName("Test login for admin not authorized")
+    public void testRestForUserProtection() {
+        login("user", "user123");
+        given()
+                .contentType("application/json")
+                .accept("application/json")
+                .header("Authorization", "Baerer "+securityToken)
+                .when()
+                .get("/protected/admin_demo").then()
+                .statusCode(401)
+                .body("msg", equalTo("Unauthorized"));
+    }
 }

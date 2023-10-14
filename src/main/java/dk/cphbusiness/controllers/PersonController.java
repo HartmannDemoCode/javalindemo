@@ -6,6 +6,7 @@ import dk.cphbusiness.dtos.PersonDTO;
 import dk.cphbusiness.exceptions.ApiException;
 import io.javalin.http.Context;
 import io.javalin.http.Handler;
+import io.javalin.http.HttpStatus;
 import io.javalin.validation.BodyValidator;
 
 import java.io.IOException;
@@ -27,7 +28,6 @@ public class PersonController implements IController {
             if (isExceptionTest) {
                 throw new ApiException(500, "Something went wrong in the getAll method in the PersonController");
             }
-            System.out.println("INDE I HANDLEREN ");
             ctx.json(persons);
         };
     }
@@ -50,7 +50,7 @@ public class PersonController implements IController {
             BodyValidator<PersonDTO> validator = ctx.bodyValidator(PersonDTO.class);
             validator.check(person -> person.getAge() > 0 && person.getAge() < 120, "Age must be greater than 0 and less than 120");
             PersonDTO person = ctx.bodyAsClass(PersonDTO.class);
-            ctx.json(person);
+            ctx.json(person).status(HttpStatus.CREATED);
         };
     }
 
@@ -73,7 +73,7 @@ public class PersonController implements IController {
             int id = Integer.parseInt(ctx.pathParam("id"));
             if(! persons.containsKey(id)){
                 ctx.status(404);
-                ctx.attribute("error", String.format("No person with id: {id}", id));
+                ctx.attribute("msg", String.format("No person with id: {id}", id));
                 return;
             }
             PersonDTO person = this.persons.remove(id);
@@ -92,8 +92,7 @@ public class PersonController implements IController {
                         .get(0);
                 ctx.json(found);
             } catch (IndexOutOfBoundsException e) {
-                ctx.status(404);
-                ctx.attribute("message", String.format("No person with name: %s", ctx.pathParam("name")));
+                throw new ApiException(404, String.format("No person with name: %s", ctx.pathParam("name")));
             }
         };
     }

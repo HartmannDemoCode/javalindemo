@@ -10,7 +10,4 @@ public interface ISecurityDAO {
     User addUserRole(String username, String role);
     User removeUserRole(String username, String role);
     boolean hasRole(String role, User userEntity);
-    String createToken(User user) throws Exception;
-    User verifyToken(String token) throws Exception;
-    String reNewToken(String token, int minutesToExpire) throws Exception;
 }

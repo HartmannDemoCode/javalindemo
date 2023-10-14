@@ -8,6 +8,7 @@ import dk.cphbusiness.rest.RestRoutes;
 import dk.cphbusiness.security.Role;
 import dk.cphbusiness.security.SecurityRoutes;
 import dk.cphbusiness.security.User;
+import io.restassured.RestAssured;
 import io.restassured.path.json.JsonPath;
 import io.restassured.response.Response;
 import jakarta.persistence.EntityManager;
@@ -21,74 +22,48 @@ import static io.restassured.RestAssured.given;
 import static org.hamcrest.CoreMatchers.hasItems;
 import static org.hamcrest.Matchers.*;
 import static org.hamcrest.Matchers.hasEntry;
+import static org.junit.Assert.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class PersonHandlerTest {
 
     ObjectMapper objectMapper = new ObjectMapper();
     private static ApplicationConfig appConfig;
-    private static EntityManagerFactory emfTest;
     private static final String BASE_URL = "http://localhost:7777/api";
-    private static User user, admin, superUser;
-    private static Role userRole, adminRole;
+
 
     @BeforeAll
     static void setUpAll() {
         RestRoutes restRoutes = new RestRoutes();
-
-        // Setup test database using docker testcontainers
-        HibernateConfig.setTestMode(true);
-        emfTest = HibernateConfig.getEntityManagerFactory();
+        RestAssured.baseURI = BASE_URL;
 
         // Start server
-        appConfig = ApplicationConfig.getInstance().startServer(7777)
+        appConfig = ApplicationConfig
+                .getInstance()
+                .startServer(7777)
                 .setErrorHandling()
                 .setGeneralExceptionHandling()
                 .setRoutes(restRoutes.getPersonRoutes())
                 .setRoutes(SecurityRoutes.getSecurityRoutes())
                 .setRoutes(SecurityRoutes.getSecuredRoutes())
-                .setApiExceptionHandling()
-        ;
-
+                .setApiExceptionHandling();
     }
 
     @AfterAll
     static void afterAll() {
         HibernateConfig.setTestMode(false);
         appConfig.stopServer();
-        emfTest.close();
     }
 
     @BeforeEach
     void setUpEach() {
-        // Setup test database for each test
-        try (EntityManager em = emfTest.createEntityManager()) {
-            em.getTransaction().begin();
-            em.createQuery("DELETE FROM User u").executeUpdate();
-            em.createQuery("DELETE FROM Role r").executeUpdate();
-            user = new User("user", "user123");
-            admin = new User("admin", "admin123");
-            superUser = new User("super", "super123");
-            userRole = new Role("user");
-            adminRole = new Role("admin");
-            user.addRole(userRole);
-            admin.addRole(adminRole);
-            superUser.addRole(userRole);
-            superUser.addRole(adminRole);
-            em.persist(user);
-            em.persist(admin);
-            em.persist(superUser);
-            em.persist(userRole);
-            em.persist(adminRole);
-            em.getTransaction().commit();
-        }
     }
 
     @Test
     @DisplayName("Hul igennem")
     public void testServerIsUp() {
         System.out.println("Testing is server UP");
-        given().when().get(BASE_URL+"/person").peek().then().statusCode(200);
+        given().when().get("/person").peek().then().statusCode(200);
     }
 
     @Test
@@ -98,13 +73,11 @@ class PersonHandlerTest {
         given()
 //                .header("Authorization", adminToken)
                 .contentType("application/json")
-//                .body(GSON.toJson(person))
                 .when()
-                .get(BASE_URL + "/person/1")
+                .get("/person/1")
                 .then()
                 .assertThat()
                 .statusCode(200)
-                // then
                 .body("name", equalTo("Kurt"))
                 .body("age", equalTo(23));
     }
@@ -113,15 +86,12 @@ class PersonHandlerTest {
     void getAll() {
 
         given()
-//                .header("Authorization", adminToken)
                 .contentType("application/json")
-//                .body(GSON.toJson(person))
                 .when()
-                .get(BASE_URL + "/person")
+                .get("/person")
                 .then()
                 .assertThat()
                 .statusCode(200)
-                // then
                 .body("size()", equalTo(3))
                 .body("1.name", equalTo("Kurt"));
     }
@@ -131,33 +101,36 @@ class PersonHandlerTest {
         // given, when, then
         given()
                 .when()
-                .get(BASE_URL + "/person")
+                .get("/person")
                 .prettyPeek()
                 .then()
-                .body("1.firstName", is("Hans"));
+                .body("1.name", is("Kurt"));
     }
     @Test
     @DisplayName("Get all persons 2")
     void testAllBody2(){
-        // given, when, then
-        given()
-//                .log().all()
+        Map<String, Map<String, Object>> jsonResponse = given()
                 .when()
-                .get(BASE_URL + "/person")
+                .get("/person")
                 .then()
-                .log().body()
-//                .body("[0].firstName", is("Hans"));
-                .body("$", hasItems(hasEntry("firstName","Kurt")));
+                .extract()
+                .jsonPath()
+                .getMap("$");
 
-        ;
+        assertEquals("Kurt", jsonResponse.get("1").get("name"));
+        assertEquals(23, jsonResponse.get("1").get("age"));
+        assertEquals("Hanne", jsonResponse.get("2").get("name"));
+        assertEquals(21, jsonResponse.get("2").get("age"));
+        assertEquals("Tina", jsonResponse.get("3").get("name"));
+        assertEquals(25, jsonResponse.get("3").get("age"));
     }
 
     @Test
     @DisplayName("Json PATH and DTOs")
-    void testAllBody3(){
+    void testAllBody4(){
         Response response = given()
                 .when()
-                .get(BASE_URL + "/person");
+                .get("/person");
         JsonPath jsonPath = response.jsonPath();
 
         // Get the map of persons from the outer json object
