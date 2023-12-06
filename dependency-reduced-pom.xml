@@ -36,7 +36,7 @@
         <configuration>
           <transformers>
             <transformer>
-              <mainClass>dk/cphbusiness/Main</mainClass>
+              <mainClass>dk/cphbusiness/rest/P08All</mainClass>
             </transformer>
           </transformers>
           <filters>

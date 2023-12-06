@@ -5,6 +5,7 @@ import com.nimbusds.jose.crypto.MACSigner;
 import com.nimbusds.jose.crypto.MACVerifier;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
+import dk.cphbusiness.data.HibernateConfig;
 import dk.cphbusiness.exceptions.ApiException;
 import dk.cphbusiness.security.exceptions.NotAuthorizedException;
 import dk.cphbusiness.security.exceptions.ValidationException;
@@ -81,14 +82,21 @@ public class SecurityDAO implements ISecurityDAO {
             em.getTransaction().begin();
             Role userRole = em.find(Role.class, "user");
             if (userRole == null)
+                userRole = new Role("user");
                 em.persist(userRole);
             userEntity.addRole(userRole);
             em.persist(userEntity);
             em.getTransaction().commit();
             return userEntity;
+        }catch (Exception e){
+            e.printStackTrace();
+            throw new ApiException(400, e.getMessage());
         }
     }
 
+    public static void main(String[] args) {
+        getInstance(HibernateConfig.getEntityManagerFactory(false)).createUser("user", "test");
+    }
     @Override
     public User getUser(String userName) {
         try (EntityManager em = getEntityManager()) {

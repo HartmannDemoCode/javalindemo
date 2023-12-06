@@ -23,7 +23,6 @@ public class PersonController implements IController {
     @Override
     public Handler getAll() {
         boolean isExceptionTest = false;
-        System.out.println("DETTE ER I PERSON GET ALL");
         return ctx -> {
             if (isExceptionTest) {
                 throw new ApiException(500, "Something went wrong in the getAll method in the PersonController");

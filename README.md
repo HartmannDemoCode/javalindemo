@@ -279,3 +279,31 @@ app.staticFiles.location("/public");
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.*;
 ```
+
+### Generics
+- There are 2 set of generic implementations in this project:
+  - IDAO<T> - This is a generic interface that can be used to create a DAO for any type of entity
+    - It enables us to make the 5 basic CRUD operations on any entity
+    - It has the following methods:
+      - T create(T t)
+      - T findById(Object id)
+      - Set<T> getAll()
+      - T update(T t)
+      - void delete(Object id)
+    - It is implemented by the following classes:
+      - ADAO<T> - An abstract class that implements IDAO<T> and has a protected EntityManagerFactory
+        - This class has the implementation of the Interface methods
+      - DAO<T> - A concrete class that extends ADAO<T> and has a constructor that takes a Class<T> as input
+        - Purpose: To be the class to instantiate when you want to create a DAO for a specific entity
+      - PersonDAO - A concrete class that extends DAO<T> and has a constructor that takes a Class<T> as input
+        - Extends DAO<T> and is used to create a DAO for the Person entity with some extra methods
+  - IConnectorDAO<T,A> with 2 methods: 
+    - void addAssociation(T entity, A associatedEntity)
+    - void removeAssociation(T entity, A associatedEntity)
+    - Its purpose is to facilitate the creation of DAOs that can add and remove one entity from another.
+    - It is implemented by the abstract class AConnectorDAO<T,A> that implements IConnectorDAO<T,A> and has a protected EntityManagerFactory
+      - This class has the implementation of the Interface methods
+      - T is the main entity (E.g. Person)
+      - A is the associated entity (E.g. Address)
+      - A extends both IAssociableEntity & IJPAEntity (firstly to provide add and remove methods and secondly to provide a getId() method)
+      

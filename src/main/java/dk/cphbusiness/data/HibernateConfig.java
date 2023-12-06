@@ -1,5 +1,6 @@
 package dk.cphbusiness.data;
 
+import dk.cphbusiness.persistence.model.*;
 import dk.cphbusiness.security.Role;
 import dk.cphbusiness.security.User;
 import dk.cphbusiness.utils.Utils;
@@ -15,14 +16,15 @@ public class HibernateConfig {
     private static EntityManagerFactory emf;
 //    private static boolean isIntegrationTest = false; // this flag is set for
     private static EntityManagerFactory emfTest;
-    private static boolean isTest = false;
+    private static boolean isRestTest = false;
     public static void setTestMode(boolean isTest) {
-        HibernateConfig.isTest = isTest;
+        HibernateConfig.isRestTest = isTest;
     }
-    public static EntityManagerFactory getEntityManagerFactory() {
+
+    public static EntityManagerFactory getEntityManagerFactory(boolean isTest) {
         if (emf == null)
             emf = createEMF(false);
-        if(isTest){
+        if(isTest || isRestTest) {
             if (emfTest == null)
                 emfTest = createEMF(true);
             return emfTest;
@@ -34,6 +36,11 @@ public class HibernateConfig {
     private static void getAnnotationConfiguration(Configuration configuration) {
         configuration.addAnnotatedClass(User.class);
         configuration.addAnnotatedClass(Role.class);
+        configuration.addAnnotatedClass(Person.class);
+        configuration.addAnnotatedClass(Address.class);
+        configuration.addAnnotatedClass(Hobby.class);
+        configuration.addAnnotatedClass(Phone.class);
+        configuration.addAnnotatedClass(Zip.class);
     }
 
     private static EntityManagerFactory createEMF(boolean forTest) {

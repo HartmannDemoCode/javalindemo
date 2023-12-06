@@ -34,7 +34,7 @@ public class SecurityTest {
 
         // Setup test database using docker testcontainers
         HibernateConfig.setTestMode(true);
-        emfTest = HibernateConfig.getEntityManagerFactory();
+        emfTest = HibernateConfig.getEntityManagerFactory(true);
 
         // Start server
         appConfig = ApplicationConfig.

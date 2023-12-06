@@ -7,10 +7,12 @@ import dk.cphbusiness.security.SecurityController;
 import dk.cphbusiness.security.dtos.UserDTO;
 import io.javalin.Javalin;
 import io.javalin.apibuilder.EndpointGroup;
+import io.javalin.http.Context;
 import io.javalin.http.HttpStatus;
 import io.javalin.plugin.bundled.RouteOverviewPlugin;
 import jakarta.persistence.EntityManagerFactory;
 
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -50,19 +52,22 @@ public class ApplicationConfig {
         return appConfig;
     }
 
-    public ApplicationConfig setCORS() {
-        app.updateConfig(config -> {
-            config.accessManager((handler, ctx, permittedRoles) -> {
-                ctx.header("Access-Control-Allow-Origin", "*");
-                ctx.header("Access-Control-Allow-Methods", "GET, POST, PUT, PATCH, DELETE, OPTIONS");
-                ctx.header("Access-Control-Allow-Headers", "Content-Type, Authorization");
-                ctx.header("Access-Control-Allow-Credentials", "true");
 
-                if (ctx.method().equals("OPTIONS"))
-                    ctx.status(200).result("OK");
-            });
+    public ApplicationConfig setCORS() {
+        app.before(ctx -> {
+            setCorsHeaders(ctx);
+        });
+        app.options("/*", ctx -> {
+            setCorsHeaders(ctx);
         });
         return appConfig;
+    }
+
+    private static void setCorsHeaders(Context ctx) {
+        ctx.header("Access-Control-Allow-Origin", "*");
+        ctx.header("Access-Control-Allow-Methods", "GET, POST, PUT, PATCH, DELETE, OPTIONS");
+        ctx.header("Access-Control-Allow-Headers", "Content-Type, Authorization");
+        ctx.header("Access-Control-Allow-Credentials", "true");
     }
 
     public ApplicationConfig checkSecurityRoles() {
@@ -73,13 +78,14 @@ public class ApplicationConfig {
                 // permitted roles are defined in the routes: get("/", ctx -> ctx.result("Hello World"), Role.ANYONE);
 
                 Set<String> allowedRoles = permittedRoles.stream().map(role -> role.toString().toUpperCase()).collect(Collectors.toSet());
-                if(allowedRoles.contains("ANYONE")) {
+                if(allowedRoles.contains("ANYONE") || Objects.equals(ctx.method(), "OPTIONS")) {
                     handler.handle(ctx);
                     return;
                 }
 
                 UserDTO user = ctx.attribute("user");
-                if(user.getUsername() == null)
+                System.out.println("USER FROM AUTHENTICATE: "+user);
+                if(user == null)
                     ctx.status(HttpStatus.UNAUTHORIZED)
                             .json(jsonMapper.createObjectNode()
                                     .put("msg","Not authorized. No username were added from the token"));
@@ -87,7 +93,7 @@ public class ApplicationConfig {
                 if (SecurityController.getInstance().authorize(user, allowedRoles))
                     handler.handle(ctx);
                 else
-                    throw new ApiException(HttpStatus.UNAUTHORIZED.getCode(), "Unauthorized");
+                    throw new ApiException(HttpStatus.UNAUTHORIZED.getCode(), "Unauthorized"+allowedRoles);
             });
         });
         return appConfig;

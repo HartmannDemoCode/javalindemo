@@ -35,7 +35,7 @@ public class SecurityController implements ISecurityController {
 
     public static SecurityController getInstance() { // Singleton because we don't want multiple instances of the same class
         if (instance == null) {
-            securityDAO = SecurityDAO.getInstance(HibernateConfig.getEntityManagerFactory());
+            securityDAO = SecurityDAO.getInstance(HibernateConfig.getEntityManagerFactory(false));
             instance = new SecurityController();
         }
         return instance;
@@ -54,6 +54,7 @@ public class SecurityController implements ISecurityController {
 
             } catch (EntityNotFoundException | ValidationException e) {
                 ctx.status(401);
+                System.out.println(e.getMessage());
                 ctx.json(returnObject.put("msg", e.getMessage()));
             }
 //            catch (Exception e) {
@@ -88,6 +89,7 @@ public class SecurityController implements ISecurityController {
         // When ctx hits the endpoint it will have the user on the attribute to check for roles (ApplicationConfig -> accessManager)
         ObjectNode returnObject = objectMapper.createObjectNode();
         return (ctx) -> {
+            System.out.println("DEMOOOOOOOOOOOOOOOOOOOOOOOOOOO");
 //            try {
             String header = ctx.header("Authorization");
             if (header == null) {
@@ -103,6 +105,7 @@ public class SecurityController implements ISecurityController {
             if (verifiedTokenUser == null) {
                 ctx.status(HttpStatus.FORBIDDEN).json(returnObject.put("msg", "Invalid User or Token"));
             }
+            System.out.println("USER IN AUTHENTICATE: " + verifiedTokenUser);
             ctx.attribute("user", verifiedTokenUser);
         };
     }

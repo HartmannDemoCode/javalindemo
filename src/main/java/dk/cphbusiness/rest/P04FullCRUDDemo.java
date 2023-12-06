@@ -14,6 +14,7 @@ public class P04FullCRUDDemo {
                 .initiateServer()
                 .startServer(7007)
                 .setRoutes(new RestRoutes().getPersonRoutes())
+                .setCORS()
                 .setRoutes(()->{
                     path("/test", () -> {
                         get("/", ctx->ctx.contentType("text/plain").result("Hello World"));

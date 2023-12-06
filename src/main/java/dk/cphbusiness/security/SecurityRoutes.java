@@ -31,5 +31,5 @@ public class SecurityRoutes {
             });
         };
     }
-    enum Role implements RouteRole { ANYONE, USER, ADMIN }
+    public enum Role implements RouteRole { ANYONE, USER, ADMIN }
 }
