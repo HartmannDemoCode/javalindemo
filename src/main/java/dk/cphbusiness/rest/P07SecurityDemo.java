@@ -1,6 +1,5 @@
 package dk.cphbusiness.rest;
 
-import dk.cphbusiness.data.HibernateConfig;
 import dk.cphbusiness.security.SecurityRoutes;
 
 public class P07SecurityDemo {
@@ -21,5 +20,6 @@ public class P07SecurityDemo {
                 .setGeneralExceptionHandling()
                 .setErrorHandling()
                 .setApiExceptionHandling();
+
     }
 }

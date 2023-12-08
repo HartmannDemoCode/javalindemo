@@ -12,18 +12,8 @@ import java.util.Set;
 
 public class PersonDAO extends DAO<Person> {
 
-    private static PersonDAO instance;
-
-    protected PersonDAO(Class<Person> entityClass, EntityManagerFactory emf) {
+    public PersonDAO(Class<Person> entityClass, EntityManagerFactory emf) {
         super(entityClass, emf);
-    }
-
-    public static PersonDAO getPersonDao(EntityManagerFactory emf) {
-        if (instance == null) {
-            instance = new PersonDAO(Person.class, emf);
-        }
-
-        return instance;
     }
 
     public Set<Phone> getPhoneNumbers(int id) {

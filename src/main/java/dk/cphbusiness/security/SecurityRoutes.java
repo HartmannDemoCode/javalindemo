@@ -1,10 +1,8 @@
 package dk.cphbusiness.security;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import dk.cphbusiness.data.HibernateConfig;
 import io.javalin.apibuilder.EndpointGroup;
 import io.javalin.security.RouteRole;
-import jakarta.persistence.EntityManagerFactory;
 
 import static io.javalin.apibuilder.ApiBuilder.*;
 
@@ -24,10 +22,10 @@ public class SecurityRoutes {
     }
     public static EndpointGroup getSecuredRoutes(){
         return ()->{
-            path("protected", ()->{
+            path("/protected", ()->{
                 before(securityController.authenticate());
-                get("user_demo",(ctx)->ctx.json(jsonMapper.createObjectNode().put("msg",  "Hello from USER Protected")),Role.USER);
-                get("admin_demo",(ctx)->ctx.json(jsonMapper.createObjectNode().put("msg",  "Hello from ADMIN Protected")),Role.ADMIN);
+                get("/user_demo",(ctx)->ctx.json(jsonMapper.createObjectNode().put("msg",  "Hello from USER Protected")),Role.USER);
+                get("/admin_demo",(ctx)->ctx.json(jsonMapper.createObjectNode().put("msg",  "Hello from ADMIN Protected")),Role.ADMIN);
             });
         };
     }

@@ -1,19 +1,14 @@
 package rest;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import dk.cphbusiness.data.HibernateConfig;
-import dk.cphbusiness.dtos.PersonDTO;
+import dk.cphbusiness.dtos.SimplePersonDTO;
+import dk.cphbusiness.persistence.HibernateConfig;
 import dk.cphbusiness.rest.ApplicationConfig;
 import dk.cphbusiness.rest.RestRoutes;
-import dk.cphbusiness.security.Role;
 import dk.cphbusiness.security.SecurityRoutes;
-import dk.cphbusiness.security.User;
 import io.restassured.RestAssured;
 import io.restassured.path.json.JsonPath;
 import io.restassured.response.Response;
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.EntityManagerFactory;
-import lombok.SneakyThrows;
 import org.junit.jupiter.api.*;
 
 import java.util.Map;
@@ -44,7 +39,7 @@ class PersonHandlerTest {
                 .startServer(7777)
                 .setErrorHandling()
                 .setGeneralExceptionHandling()
-                .setRoutes(restRoutes.getPersonRoutes())
+                .setRoutes(restRoutes.getOpenRoutes())
                 .setRoutes(SecurityRoutes.getSecurityRoutes())
                 .setRoutes(SecurityRoutes.getSecuredRoutes())
                 .setApiExceptionHandling();
@@ -64,7 +59,7 @@ class PersonHandlerTest {
     @DisplayName("Hul igennem")
     public void testServerIsUp() {
         System.out.println("Testing is server UP");
-        given().when().get("/person").peek().then().statusCode(200);
+        given().when().get("/open").peek().then().statusCode(200);
     }
 
     @Test
@@ -75,7 +70,7 @@ class PersonHandlerTest {
 //                .header("Authorization", adminToken)
                 .contentType("application/json")
                 .when()
-                .get("/person/1")
+                .get("/open/1")
                 .then()
                 .assertThat()
                 .statusCode(200)
@@ -89,11 +84,11 @@ class PersonHandlerTest {
         given()
                 .contentType("application/json")
                 .when()
-                .get("/person")
+                .get("/open")
                 .then()
                 .assertThat()
                 .statusCode(200)
-                .body("size()", equalTo(3))
+                .body("size()", equalTo(5))
                 .body("1.name", equalTo("Kurt"));
     }
     @Test
@@ -102,7 +97,7 @@ class PersonHandlerTest {
         // given, when, then
         given()
                 .when()
-                .get("/person")
+                .get("/open")
                 .prettyPeek()
                 .then()
                 .body("1.name", is("Kurt"));
@@ -112,7 +107,7 @@ class PersonHandlerTest {
     void testAllBody2(){
         Map<String, Map<String, Object>> jsonResponse = given()
                 .when()
-                .get("/person")
+                .get("/open")
                 .then()
                 .extract()
                 .jsonPath()
@@ -131,21 +126,21 @@ class PersonHandlerTest {
     void testAllBody4(){
         Response response = given()
                 .when()
-                .get("/person");
+                .get("/open");
         JsonPath jsonPath = response.jsonPath();
 
         // Get the map of persons from the outer json object
         Map<String, Map<String, Object>> personsMap = jsonPath.getMap("$");
 
-        // Convert the map of persons to an array of PersonDTO
-        PersonDTO[] persons = personsMap.values()
+        // Convert the map of persons to an array of SimplePersonDTO
+        SimplePersonDTO[] persons = personsMap.values()
                 .stream()
-                .map(personData -> new PersonDTO(
+                .map(personData -> new SimplePersonDTO(
                         (String) personData.get("name"),
                         (int) personData.get("age")
                 ))
-                .toArray(PersonDTO[]::new);
+                .toArray(SimplePersonDTO[]::new);
 
-        assertTrue(persons.length == 3);
+        assertEquals(5, persons.length);
     }
 }

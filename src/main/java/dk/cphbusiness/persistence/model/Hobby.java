@@ -49,4 +49,17 @@ public class Hobby implements IJPAEntity<String>, IAssociableEntity<Person>{
         this.persons.remove(entity);
         entity.getHobbies().remove(this);
     }
+    @Getter
+    public enum HobbyCategory {
+        EDUCATIONAL("Educational"),
+        GENERAL("General"),
+        COLLECTION_HOBBY("Collecting stuff"),
+        COMPETITION("Competition");
+
+        private final String name;
+
+        HobbyCategory(String name) {
+            this.name = name;
+        }
+    }
 }

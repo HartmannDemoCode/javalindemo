@@ -17,8 +17,7 @@ public class P08All {
     // 5. SecurityRoutes (auth and protected)
     // 6. SecurityTest with Login and token send to protected
 
-    private static SecurityController securityController = SecurityController.getInstance();
-    private static IController personController = new PersonEntityController();
+    private static IController personController = PersonEntityController.getInstance();
     public static void main(String[] args) {
         ApplicationConfig
             .getInstance()
@@ -31,14 +30,7 @@ public class P08All {
                     get("/{id}", ctx -> personController.getById(), Role.ANYONE);
                 });
             })
-                .setRoutes(() -> {
-                    path("/person", () -> {
-                        before("person",securityController.authenticate());
-                        post("/", ctx -> personController.create(), Role.USER);
-                        put("/{id}", ctx -> personController.update());
-                        delete("/{id}", ctx -> personController.delete());
-                    });
-                })
+            .setRoutes(new RestRoutes().personEntityRoutes)
             .startServer(7007)
             .setCORS()
             .setGeneralExceptionHandling()

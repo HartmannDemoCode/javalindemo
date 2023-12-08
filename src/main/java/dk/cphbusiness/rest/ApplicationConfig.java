@@ -75,25 +75,26 @@ public class ApplicationConfig {
         app.updateConfig(config -> {
 
             config.accessManager((handler, ctx, permittedRoles) -> {
-                // permitted roles are defined in the routes: get("/", ctx -> ctx.result("Hello World"), Role.ANYONE);
+                // permitted roles are defined in the last arg to routes: get("/", ctx -> ctx.result("Hello World"), Role.ANYONE);
 
                 Set<String> allowedRoles = permittedRoles.stream().map(role -> role.toString().toUpperCase()).collect(Collectors.toSet());
-                if(allowedRoles.contains("ANYONE") || Objects.equals(ctx.method(), "OPTIONS")) {
+                if(allowedRoles.contains("ANYONE") || ctx.method().toString().equals("OPTIONS")) {
+                    // Allow requests from anyone and OPTIONS requests (preflight in CORS)
                     handler.handle(ctx);
                     return;
                 }
 
                 UserDTO user = ctx.attribute("user");
-                System.out.println("USER FROM AUTHENTICATE: "+user);
+                System.out.println("USER IN CHECK_SEC_ROLES: "+user);
                 if(user == null)
-                    ctx.status(HttpStatus.UNAUTHORIZED)
+                    ctx.status(HttpStatus.FORBIDDEN)
                             .json(jsonMapper.createObjectNode()
                                     .put("msg","Not authorized. No username were added from the token"));
 
                 if (SecurityController.getInstance().authorize(user, allowedRoles))
                     handler.handle(ctx);
                 else
-                    throw new ApiException(HttpStatus.UNAUTHORIZED.getCode(), "Unauthorized"+allowedRoles);
+                    throw new ApiException(HttpStatus.FORBIDDEN.getCode(), "Unauthorized with roles: "+allowedRoles);
             });
         });
         return appConfig;

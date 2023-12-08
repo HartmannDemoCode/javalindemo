@@ -3,7 +3,7 @@ package dk.cphbusiness.security;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.nimbusds.jose.*;
-import dk.cphbusiness.data.HibernateConfig;
+import dk.cphbusiness.persistence.HibernateConfig;
 import dk.cphbusiness.exceptions.ApiException;
 import dk.cphbusiness.security.dtos.TokenDTO;
 import dk.cphbusiness.security.dtos.UserDTO;
@@ -35,9 +35,9 @@ public class SecurityController implements ISecurityController {
 
     public static SecurityController getInstance() { // Singleton because we don't want multiple instances of the same class
         if (instance == null) {
-            securityDAO = SecurityDAO.getInstance(HibernateConfig.getEntityManagerFactory(false));
             instance = new SecurityController();
         }
+        securityDAO = new SecurityDAO(HibernateConfig.getEntityManagerFactory());
         return instance;
     }
 
@@ -47,6 +47,7 @@ public class SecurityController implements ISecurityController {
             ObjectNode returnObject = objectMapper.createObjectNode(); // for sending json messages back to the client
             try {
                 UserDTO user = ctx.bodyAsClass(UserDTO.class);
+                System.out.println("USER IN LOGIN: " + user);
 
                 User verifiedUserEntity = securityDAO.getVerifiedUser(user.getUsername(), user.getPassword());
                 String token = createToken(new UserDTO(verifiedUserEntity));
@@ -89,8 +90,10 @@ public class SecurityController implements ISecurityController {
         // When ctx hits the endpoint it will have the user on the attribute to check for roles (ApplicationConfig -> accessManager)
         ObjectNode returnObject = objectMapper.createObjectNode();
         return (ctx) -> {
-            System.out.println("DEMOOOOOOOOOOOOOOOOOOOOOOOOOOO");
-//            try {
+            if(ctx.method().toString().equals("OPTIONS")) {
+                ctx.status(200);
+                return;
+            }
             String header = ctx.header("Authorization");
             if (header == null) {
                 ctx.status(HttpStatus.FORBIDDEN).json(returnObject.put("msg", "Authorization header missing"));

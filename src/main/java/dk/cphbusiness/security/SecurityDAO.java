@@ -1,27 +1,10 @@
 package dk.cphbusiness.security;
 
-import com.nimbusds.jose.*;
-import com.nimbusds.jose.crypto.MACSigner;
-import com.nimbusds.jose.crypto.MACVerifier;
-import com.nimbusds.jwt.JWTClaimsSet;
-import com.nimbusds.jwt.SignedJWT;
-import dk.cphbusiness.data.HibernateConfig;
 import dk.cphbusiness.exceptions.ApiException;
-import dk.cphbusiness.security.exceptions.NotAuthorizedException;
 import dk.cphbusiness.security.exceptions.ValidationException;
-import jakarta.persistence.EntityExistsException;
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.EntityManagerFactory;
-import jakarta.persistence.EntityNotFoundException;
+import jakarta.persistence.*;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.text.ParseException;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.Properties;
-import java.util.Set;
-import java.util.stream.Collectors;
+import java.util.*;
 
 
 public class SecurityDAO implements ISecurityDAO {
@@ -29,15 +12,8 @@ public class SecurityDAO implements ISecurityDAO {
     private static ISecurityDAO instance;
     private static EntityManagerFactory emf;
 
-    private SecurityDAO() {
-    }
-
-    public static ISecurityDAO getInstance(EntityManagerFactory _emf) {
-        if (instance == null) {
-            emf = _emf;
-            instance = new SecurityDAO();
-        }
-        return instance;
+    public SecurityDAO(EntityManagerFactory _emf) {
+        emf = _emf;
     }
 
     private EntityManager getEntityManager() {
@@ -47,6 +23,10 @@ public class SecurityDAO implements ISecurityDAO {
     @Override
     public User getVerifiedUser(String username, String password) throws ValidationException {
         try (EntityManager em = getEntityManager()) {
+            System.out.println("USERNAME INSIDE GET_VERIFIED_USER: " + username + " PASSWORD: " + password);
+            List<User> users = em.createQuery("SELECT u FROM User u").getResultList();
+            System.out.println("SIZE OF USERS: " + users.size());
+            users.stream().forEach(user -> System.out.println(user.getUsername() + " " + user.getPassword()));
             User user = em.find(User.class, username);
             if (user == null)
                 throw new EntityNotFoundException("No user found with username: " + username); //RuntimeException
@@ -94,9 +74,6 @@ public class SecurityDAO implements ISecurityDAO {
         }
     }
 
-    public static void main(String[] args) {
-        getInstance(HibernateConfig.getEntityManagerFactory(false)).createUser("user", "test");
-    }
     @Override
     public User getUser(String userName) {
         try (EntityManager em = getEntityManager()) {

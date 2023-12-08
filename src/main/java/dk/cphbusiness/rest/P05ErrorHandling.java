@@ -1,7 +1,6 @@
 package dk.cphbusiness.rest;
 
 import dk.cphbusiness.controllers.PersonController;
-import dk.cphbusiness.data.HibernateConfig;
 
 import static io.javalin.apibuilder.ApiBuilder.*;
 
@@ -16,7 +15,7 @@ public class P05ErrorHandling {
                 .getInstance()
                 .initiateServer()
                 .startServer(7007)
-                .setRoutes(restRoutes.getPersonRoutes())
+                .setRoutes(restRoutes.getOpenRoutes())
                 .setRoutes(() -> {
                     path("/test", () -> {
                         get("/", ctx -> ctx.result("Hello World"));

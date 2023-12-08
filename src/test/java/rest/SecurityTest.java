@@ -2,17 +2,12 @@ package rest;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import dk.cphbusiness.data.HibernateConfig;
+import dk.cphbusiness.persistence.HibernateConfig;
 import dk.cphbusiness.rest.ApplicationConfig;
 import dk.cphbusiness.rest.RestRoutes;
-import dk.cphbusiness.security.Role;
 import dk.cphbusiness.security.SecurityRoutes;
-import dk.cphbusiness.security.User;
-import io.javalin.http.ContentType;
 import io.restassured.RestAssured;
-import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
-import lombok.SneakyThrows;
 import org.junit.jupiter.api.*;
 
 import static io.restassured.RestAssured.given;
@@ -30,24 +25,26 @@ public class SecurityTest {
     @BeforeAll
     static void setUpAll() {
         RestAssured.baseURI = BASE_URL;
+        HibernateConfig.setTestMode(true); // IMPORTANT leave this at the very top of this method in order to use the test database
         RestRoutes restRoutes = new RestRoutes();
 
         // Setup test database using docker testcontainers
-        HibernateConfig.setTestMode(true);
-        emfTest = HibernateConfig.getEntityManagerFactory(true);
+        emfTest = HibernateConfig.getEntityManagerFactory();
 
         // Start server
         appConfig = ApplicationConfig.
                 getInstance()
                 .initiateServer()
-                .startServer(7777)
+                .checkSecurityRoles()
                 .setErrorHandling()
                 .setGeneralExceptionHandling()
-                .setRoutes(restRoutes.getPersonRoutes())
+                .setRoutes(restRoutes.getOpenRoutes())
                 .setRoutes(SecurityRoutes.getSecurityRoutes())
-                .checkSecurityRoles()
                 .setRoutes(SecurityRoutes.getSecuredRoutes())
+                .setRoutes(restRoutes.personEntityRoutes) // A different way to get the EndpointGroup. Getting data from DB
+                .setCORS()
                 .setApiExceptionHandling()
+                .startServer(7777)
         ;
     }
 
@@ -61,12 +58,14 @@ public class SecurityTest {
     void setUpEach() {
         // Setup test database for each test
         new TestUtils().createUsersAndRoles(emfTest);
+        // Setup DB Persons and Addresses
+        new TestUtils().createPersonEntities(emfTest);
     }
 
     @Test
     public void testServerIsUp() {
         System.out.println("Testing is server UP");
-        given().when().get("/person").then().statusCode(200);
+        given().when().get("/open").then().statusCode(200);
     }
     private static String securityToken;
 
@@ -91,7 +90,7 @@ public class SecurityTest {
         given()
                 .contentType("application/json")
                 .accept("application/json")
-                .header("Authorization", "Baerer "+securityToken)
+                .header("Authorization", "Bearer "+securityToken)
                 .when()
                 .get("/protected/user_demo").then()
                 .statusCode(200)
@@ -105,10 +104,64 @@ public class SecurityTest {
         given()
                 .contentType("application/json")
                 .accept("application/json")
-                .header("Authorization", "Baerer "+securityToken)
+                .header("Authorization", "Bearer "+securityToken)
                 .when()
                 .get("/protected/admin_demo").then()
-                .statusCode(401)
-                .body("msg", equalTo("Unauthorized"));
+                .statusCode(403)
+                .body("msg", equalTo("Unauthorized with roles: [ADMIN]"));
+    }
+
+    @Test
+    @DisplayName("Test CORS Headers")
+    public void testCorsHeaders() {
+        given()
+                .when()
+                .get("/open")
+                .then()
+                .header("Access-Control-Allow-Origin", "*")
+                .header("Access-Control-Allow-Methods", "GET, POST, PUT, PATCH, DELETE, OPTIONS")
+                .header("Access-Control-Allow-Headers", "Content-Type, Authorization")
+                .statusCode(200);
+    }
+
+    @Test
+    @DisplayName("Test CORS Preflight against a protected route")
+    public void testCorsPreflight() {
+        given()
+                .when()
+                .header("Access-Control-Request-Method", "POST")
+//                .header("Origin", "http://localhost:7777")
+                .options("/protected/admin_demo")
+                .then()
+                .header("Access-Control-Allow-Origin", "*")
+                .header("Access-Control-Allow-Methods", "GET, POST, PUT, PATCH, DELETE, OPTIONS")
+                .header("Access-Control-Allow-Headers", "Content-Type, Authorization")
+                .statusCode(200);
+    }
+
+    @Test
+    @DisplayName("Test Entities from DB")
+    public void testEntitiesFromDB() {
+        login("admin", "admin123");
+        given()
+                .contentType("application/json")
+                .accept("application/json")
+                .header("Authorization", "Bearer "+securityToken)
+                .when()
+                .get("/personEntity").then()
+                .statusCode(200)
+                .body("size()", equalTo(3));
+    }
+    @Test
+    @DisplayName("Test Entities from DB not allowed for User role")
+    public void testEntitiesFromDBNotAllowed() {
+        login("user", "user123");
+        given()
+                .contentType("application/json")
+                .accept("application/json")
+                .header("Authorization", "Bearer "+securityToken)
+                .when()
+                .get("/personEntity").then()
+                .statusCode(403); // Forbidden
     }
 }

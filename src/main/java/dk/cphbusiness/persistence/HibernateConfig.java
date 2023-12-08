@@ -1,4 +1,4 @@
-package dk.cphbusiness.data;
+package dk.cphbusiness.persistence;
 
 import dk.cphbusiness.persistence.model.*;
 import dk.cphbusiness.security.Role;
@@ -14,24 +14,22 @@ import java.util.Properties;
 
 public class HibernateConfig {
     private static EntityManagerFactory emf;
-//    private static boolean isIntegrationTest = false; // this flag is set for
-    private static EntityManagerFactory emfTest;
-    private static boolean isRestTest = false;
+    private static boolean isIntegrationTest = false; // this flag is set for
     public static void setTestMode(boolean isTest) {
-        HibernateConfig.isRestTest = isTest;
+        HibernateConfig.isIntegrationTest = isTest;
     }
 
-    public static EntityManagerFactory getEntityManagerFactory(boolean isTest) {
+    private static EntityManagerFactory emfTest;
+    public static EntityManagerFactory getEntityManagerFactory() {
         if (emf == null)
             emf = createEMF(false);
-        if(isTest || isRestTest) {
-            if (emfTest == null)
-                emfTest = createEMF(true);
-            return emfTest;
-        }
         return emf;
     }
-
+    public static EntityManagerFactory getEntityManagerFactoryForTest() {
+        if (emfTest == null)
+            emfTest = createEMF(true);
+        return emfTest;
+    }
     // TODO: IMPORTANT: Add Entity classes here for them to be registered with Hibernate
     private static void getAnnotationConfiguration(Configuration configuration) {
         configuration.addAnnotatedClass(User.class);
@@ -49,7 +47,7 @@ public class HibernateConfig {
             Properties props = new Properties();
             // Set the properties
             setBaseProperties(props);
-            if(forTest){ //|| isIntegrationTest) {
+            if(forTest || isIntegrationTest) {
                 props = setTestProperties(props);
             }
             else if(System.getenv("DEPLOYED") != null) {
@@ -75,7 +73,6 @@ public class HibernateConfig {
     private static String getDBName() {
         return Utils.getPropertyValue("db.name", "properties-from-pom.properties");
     }
-
     private static Properties setBaseProperties(Properties props){
         props.put("hibernate.dialect", "org.hibernate.dialect.PostgreSQLDialect");
         props.put("hibernate.connection.driver_class", "org.postgresql.Driver");
@@ -110,7 +107,4 @@ public class HibernateConfig {
 //        props.put("hibernate.hbm2ddl.auto", "create-drop");
         return props;
     }
-//    public static void setTestMode(boolean isTest) {
-//        isIntegrationTest = isTest;
-//    }
 }

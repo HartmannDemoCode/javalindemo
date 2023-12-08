@@ -8,7 +8,8 @@ import jakarta.persistence.TypedQuery;
 import org.hibernate.exception.ConstraintViolationException;
 
 import javax.lang.model.UnknownEntityException;
-import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * This is an abstract class that is used to perform CRUD operations on any entity. It can be extended to gain access to basic CRUD operations.
@@ -31,7 +32,6 @@ abstract class ADAO<T extends IJPAEntity> implements IDAO<T> {
     public EntityManagerFactory getEntityManagerFactory() {
         return emf;
     }
-
     // Queries
     public T findById(Object id) {
         try (EntityManager em = emf.createEntityManager()) {
@@ -42,10 +42,11 @@ abstract class ADAO<T extends IJPAEntity> implements IDAO<T> {
         }
     }
 
-    public List<T> getAll() {
+    public Set<T> getAll() {
         try (EntityManager em = emf.createEntityManager()) {
             TypedQuery<T> query = em.createQuery("SELECT t FROM  "+entityName+" t", entityType);
-            return query.getResultList();
+            Set<T> result = query.getResultList().stream().collect(Collectors.toSet());
+            return result;
         } catch (Exception e) {
             e.printStackTrace();
         }

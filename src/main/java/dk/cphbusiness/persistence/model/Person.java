@@ -38,10 +38,10 @@ public class Person implements IJPAEntity<Integer> {
     @Column(name = "birth_date", nullable = false)
     private LocalDate birthDate;
 
-    @OneToMany(mappedBy = "person", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "person", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER) // eager because the generic DAO approach doesnt allow for loading specific collections
     private Set<Phone> phones = new HashSet<>();
 
-    @ManyToMany
+    @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable( // owning side
             name = "person_hobby",
             joinColumns = @JoinColumn(name = "person_id"),

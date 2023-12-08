@@ -7,7 +7,7 @@ import dk.cphbusiness.persistence.model.Person;
 import dk.cphbusiness.persistence.model.Zip;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
-import dk.cphbusiness.data.HibernateConfig;
+import dk.cphbusiness.persistence.HibernateConfig;
 import org.junit.jupiter.api.*;
 
 import java.time.LocalDate;
@@ -26,12 +26,19 @@ class DAOTest {
 
     @BeforeAll
     static void setUpAll() {
-        emf = HibernateConfig.getEntityManagerFactory(true);
+        HibernateConfig.setTestMode(true);
+        emf = HibernateConfig.getEntityManagerFactory();
         personDao = new DAO<>(Person.class, emf);
         addressDao = new DAO<>(Address.class, emf);
         zipDao = new DAO<>(Zip.class, emf);
         personAddressConnectorDAO = new ConnectorDAO<>(Person.class, Address.class, emf);
         addressZipConnectorDAO = new ConnectorDAO<>(Address.class, Zip.class, emf);
+    }
+
+    @AfterAll
+    static void tearDownAll() {
+        HibernateConfig.setTestMode(false);
+        emf.close();
     }
 
     @BeforeEach
@@ -50,6 +57,7 @@ class DAOTest {
         em.getTransaction().begin();
         em.createNamedQuery("Person.deleteAll").executeUpdate();
         em.createNamedQuery("Address.deleteAll").executeUpdate();
+        em.createNamedQuery("Zip.deleteAll").executeUpdate();
         em.persist(p1);
         em.persist(p2);
         em.persist(p3);

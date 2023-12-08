@@ -2,7 +2,6 @@ package dk.cphbusiness.rest;
 
 import dk.cphbusiness.controllers.IController;
 import dk.cphbusiness.controllers.PersonController;
-import dk.cphbusiness.data.HibernateConfig;
 
 import static io.javalin.apibuilder.ApiBuilder.*;
 
@@ -13,7 +12,7 @@ public class P04FullCRUDDemo {
                 .getInstance()
                 .initiateServer()
                 .startServer(7007)
-                .setRoutes(new RestRoutes().getPersonRoutes())
+                .setRoutes(new RestRoutes().getOpenRoutes())
                 .setCORS()
                 .setRoutes(()->{
                     path("/test", () -> {

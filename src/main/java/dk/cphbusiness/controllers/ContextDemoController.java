@@ -2,7 +2,7 @@ package dk.cphbusiness.controllers;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import dk.cphbusiness.dtos.PersonDTO;
+import dk.cphbusiness.dtos.SimplePersonDTO;
 import io.javalin.http.Handler;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -55,7 +55,7 @@ public class ContextDemoController {
 
     public Handler getBodyAsClassDemo(){
         return ctx -> {
-            PersonDTO person = ctx.bodyAsClass(PersonDTO.class);
+            SimplePersonDTO person = ctx.bodyAsClass(SimplePersonDTO.class);
             ObjectNode json = jsonMapper.createObjectNode();
             json.put("person", jsonMapper.valueToTree(person));
             json.put("message","GetBodyAsClassDemo");
@@ -64,7 +64,7 @@ public class ContextDemoController {
     }
     public Handler getBodyValidatorDemo(){
         return ctx -> {
-            PersonDTO person = ctx.bodyValidator(PersonDTO.class)
+            SimplePersonDTO person = ctx.bodyValidator(SimplePersonDTO.class)
                     .check(p -> p.getName() != null && p.getName().length() > 0, "Name cannot be null or empty")
                     .check(p -> p.getAge() > 0, "Age must be a positive number")
                     .get();

@@ -3,6 +3,7 @@ package dk.cphbusiness.persistence.daos;
 import dk.cphbusiness.persistence.model.IJPAEntity;
 
 import java.util.List;
+import java.util.Set;
 
 /**
  * This is an interface for making a DAO (Data Access Object) that can be used to perform CRUD operations on any entity.
@@ -18,7 +19,7 @@ interface IDAO<T extends IJPAEntity> {
 
     T findById(Object id);
 
-    List<T> getAll();
+    Set<T> getAll();
 
     T create(T t);
 

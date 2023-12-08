@@ -1,23 +1,21 @@
 package dk.cphbusiness.controllers;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-import dk.cphbusiness.dtos.PersonDTO;
+import dk.cphbusiness.dtos.SimplePersonDTO;
 import dk.cphbusiness.exceptions.ApiException;
-import io.javalin.http.Context;
 import io.javalin.http.Handler;
 import io.javalin.http.HttpStatus;
 import io.javalin.validation.BodyValidator;
 
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
 public class PersonController implements IController {
-    Map<Integer, PersonDTO> persons = new HashMap(Map.of(
-        1, new PersonDTO("Kurt", 23),
-        2, new PersonDTO("Hanne", 21),
-        3, new PersonDTO("Tina", 25)
+    Map<Integer, SimplePersonDTO> persons = new HashMap(Map.of(
+        1, new SimplePersonDTO("Kurt", 23),
+        2, new SimplePersonDTO("Hanne", 21),
+        3, new SimplePersonDTO("Tina", 25),
+        4, new SimplePersonDTO("Carla", 44),
+        5, new SimplePersonDTO("Hans", 75)
     ));
 
     @Override
@@ -46,9 +44,9 @@ public class PersonController implements IController {
     @Override
     public Handler create() {
         return ctx -> {
-            BodyValidator<PersonDTO> validator = ctx.bodyValidator(PersonDTO.class);
+            BodyValidator<SimplePersonDTO> validator = ctx.bodyValidator(SimplePersonDTO.class);
             validator.check(person -> person.getAge() > 0 && person.getAge() < 120, "Age must be greater than 0 and less than 120");
-            PersonDTO person = ctx.bodyAsClass(PersonDTO.class);
+            SimplePersonDTO person = ctx.bodyAsClass(SimplePersonDTO.class);
             ctx.json(person).status(HttpStatus.CREATED);
         };
     }
@@ -60,7 +58,7 @@ public class PersonController implements IController {
                     .pathParamAsClass("id", Integer.class) // returns a validator
                     .check(id -> id > 0 && id < 4, "Id must be between 1 and 3"); // Use a path param validator
             int id = Integer.parseInt(ctx.pathParam("id"));
-            PersonDTO person = ctx.bodyAsClass(PersonDTO.class);
+            SimplePersonDTO person = ctx.bodyAsClass(SimplePersonDTO.class);
             this.persons.put(id, person);
             ctx.json(person);
         };
@@ -75,7 +73,7 @@ public class PersonController implements IController {
                 ctx.attribute("msg", String.format("No person with id: {id}", id));
                 return;
             }
-            PersonDTO person = this.persons.remove(id);
+            SimplePersonDTO person = this.persons.remove(id);
             ctx.json(person);
         };
     }
@@ -83,7 +81,7 @@ public class PersonController implements IController {
     public Handler getByName() {
         return ctx -> {
             try {
-                PersonDTO found = persons
+                SimplePersonDTO found = persons
                         .values()
                         .stream()
                         .filter((person) -> person.getName().equals(ctx.pathParam("name")))

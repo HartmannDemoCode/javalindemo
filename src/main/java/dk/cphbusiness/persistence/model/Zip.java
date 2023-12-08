@@ -1,9 +1,6 @@
 package dk.cphbusiness.persistence.model;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.OneToMany;
+import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
@@ -15,6 +12,12 @@ import java.util.Set;
 @Getter
 @ToString
 @NoArgsConstructor
+@NamedQueries({
+        @NamedQuery(name="Zip.deleteAll", query = "DELETE from Zip"),
+        @NamedQuery(name="Zip.getAll", query = "SELECT z from Zip z"),
+        @NamedQuery(name="Zip.getByZip", query = "SELECT z from Zip z WHERE z.zip = :zip"),
+})
+@Table(name = "zip")
 public class Zip implements IJPAEntity<String>, IAssociableEntity<Address>{
 
     @Id
