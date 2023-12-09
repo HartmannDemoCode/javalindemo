@@ -18,7 +18,7 @@ public class RestRoutes {
             path("open", () -> {
                 get("/", personController.getAll(), Role.ANYONE);
                 get("/{id}", personController.getById(), Role.ANYONE);
-                get("/name/{email}", personController.getByEmail(), Role.ANYONE);
+                get("/email/{email}", personController.getByEmail(), Role.ANYONE);
                 post("/", personController.create(), Role.ANYONE);
                 put("/{id}", personController.update(), Role.ANYONE);
                 delete("/{id}", personController.delete(), Role.ANYONE);

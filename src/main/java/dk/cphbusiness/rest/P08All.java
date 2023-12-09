@@ -19,7 +19,9 @@ public class P08All {
             .initiateServer()
             .checkSecurityRoles() // check for role when route is called
             .setRoutes(SecurityRoutes.getSecurityRoutes())
-            .setRoutes(new RestRoutes().personEntityRoutes)
+            .setRoutes(SecurityRoutes.getSecuredRoutes())
+            .setRoutes(new RestRoutes().getOpenRoutes())
+            .setRoutes(new RestRoutes().personEntityRoutes) // A different way to get the EndpointGroup.
             .startServer(7070)
             .setCORS()
             .setGeneralExceptionHandling()
