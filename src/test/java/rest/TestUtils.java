@@ -37,6 +37,8 @@ public class TestUtils {
         try (EntityManager em = emfTest.createEntityManager()) {
             em.getTransaction().begin();
             em.createQuery("DELETE FROM Phone").executeUpdate();
+            em.getTransaction().commit();
+            em.getTransaction().begin();
             em.createQuery("DELETE FROM Person").executeUpdate();
             em.createQuery("DELETE FROM Address").executeUpdate();
             em.createQuery("DELETE FROM Zip").executeUpdate();
