@@ -37,8 +37,6 @@ public class TestUtils {
         try (EntityManager em = emfTest.createEntityManager()) {
             em.getTransaction().begin();
             em.createQuery("DELETE FROM Phone").executeUpdate();
-            em.getTransaction().commit();
-            em.getTransaction().begin();
             em.createQuery("DELETE FROM Person").executeUpdate();
             em.createQuery("DELETE FROM Address").executeUpdate();
             em.createQuery("DELETE FROM Zip").executeUpdate();
@@ -88,9 +86,6 @@ public class TestUtils {
             em.persist(h2);
             em.persist(h3);
             em.getTransaction().commit();
-
-            System.out.println("Persons in test DB: ");
-            em.createQuery("SELECT p FROM Person p", Person.class).getResultList().forEach(System.out::println);
         }
     }
 }

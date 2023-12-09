@@ -54,9 +54,11 @@ class DAOTest {
         p2.setAddress(a2);
         p3.setAddress(a2);
         em.getTransaction().begin();
-        em.createNamedQuery("Person.deleteAll").executeUpdate();
-        em.createNamedQuery("Address.deleteAll").executeUpdate();
-        em.createNamedQuery("Zip.deleteAll").executeUpdate();
+        em.createQuery("DELETE FROM Phone").executeUpdate();
+        em.createQuery("DELETE FROM Person").executeUpdate();
+        em.createQuery("DELETE FROM Address").executeUpdate();
+        em.createQuery("DELETE FROM Zip").executeUpdate();
+        em.createQuery("DELETE FROM Hobby").executeUpdate();
         em.persist(p1);
         em.persist(p2);
         em.persist(p3);
