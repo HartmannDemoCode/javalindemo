@@ -38,7 +38,6 @@ class DAOTest {
     @AfterAll
     static void tearDownAll() {
         HibernateConfig.setTestMode(false);
-        emf.close();
     }
 
     @BeforeEach
