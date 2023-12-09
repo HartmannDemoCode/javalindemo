@@ -1,10 +1,11 @@
-package dk.cphbusiness.controllers;
+package dk.cphbusiness.rest.controllers;
 
+import dk.cphbusiness.persistence.daos.ConnectorDAO;
 import dk.cphbusiness.persistence.daos.PersonDAO;
 import dk.cphbusiness.persistence.HibernateConfig;
 import dk.cphbusiness.dtos.PersonDTO;
 import dk.cphbusiness.exceptions.ApiException;
-import dk.cphbusiness.persistence.model.Person;
+import dk.cphbusiness.persistence.model.*;
 import io.javalin.http.Handler;
 import io.javalin.http.HttpStatus;
 import io.javalin.validation.BodyValidator;
@@ -13,6 +14,7 @@ public class PersonEntityController implements IController {
 
     private static PersonEntityController instance;
     private static PersonDAO personDAO;
+
     private PersonEntityController() { }
 
     public static PersonEntityController getInstance() { // Singleton because we don't want multiple instances of the same class
@@ -29,10 +31,6 @@ public class PersonEntityController implements IController {
     public Handler getAll() {
         return ctx -> {
             personDAO.getEntityManagerFactory().getProperties().forEach((k,v) -> System.out.println(k + " : " + v));
-//                throw new Exception("NOOOOOOOOOOOOOOOOOOOOO still in test mode");
-//            } else {
-//                throw new Exception("NOOOOOOOOOOOOOOOOOOOO NOT in test mode");
-//            }
             ctx.status(HttpStatus.OK).json(PersonDTO.getEntities(personDAO.getAll()));
         };
     }
@@ -56,7 +54,7 @@ public class PersonEntityController implements IController {
             BodyValidator<PersonDTO> validator = ctx.bodyValidator(PersonDTO.class);
 //            validator.check(person -> person.getAge() > 0 && person.getAge() < 120, "Age must be greater than 0 and less than 120");
             PersonDTO person = ctx.bodyAsClass(PersonDTO.class);
-            personDAO.create(person.getEntity());
+            personDAO.create(person.toEntity());
             ctx.json(person).status(HttpStatus.CREATED);
         };
     }
@@ -67,7 +65,7 @@ public class PersonEntityController implements IController {
             String id = (ctx.pathParam("id"));
             PersonDTO person = ctx.bodyAsClass(PersonDTO.class);
             person.setId(id);
-            personDAO.update(person.getEntity());
+            personDAO.update(person.toEntity());
             ctx.json(person);
         };
     }
@@ -76,9 +74,42 @@ public class PersonEntityController implements IController {
     public Handler delete() {
         return ctx -> {
             String id = ctx.pathParam("id");
-            PersonDTO person = new PersonDTO(personDAO.findById(Integer.parseInt(id)));
-            personDAO.delete(person.getEntity());
+            Person found = personDAO.findById(Integer.parseInt(id));
+            if(found == null)
+                throw new ApiException(404, "No person with that id");
+            PersonDTO person = new PersonDTO(found);
+            personDAO.delete(person.toEntity());
             ctx.json(person);
+        };
+    }
+    public Handler connectPersonToAddress(){
+        return ctx -> {
+            String personId = ctx.pathParam("personId");
+            String addressId = ctx.pathParam("addressId");
+            Person person = personDAO.findById(Integer.parseInt(personId));
+            Address address = personDAO.getAddressById(Integer.parseInt(addressId));
+            new ConnectorDAO(Person.class, Address.class, HibernateConfig.getEntityManagerFactory()).addAssociation(person, address);
+            ctx.json(personDAO.findById(person.getId()));
+        };
+    }
+    public Handler connectPersonToPhone(){
+        return ctx -> {
+            String personId = ctx.pathParam("personId");
+            String phoneId = ctx.pathParam("phoneId");
+            Person person = personDAO.findById(Integer.parseInt(personId));
+            Phone phone = personDAO.getPhoneById(phoneId);
+            new ConnectorDAO(Person.class, Phone.class, HibernateConfig.getEntityManagerFactory()).addAssociation(person, phone);
+            ctx.json(personDAO.findById(person.getId()));
+        };
+    }
+    public Handler connectPersonToHobby(){
+        return ctx -> {
+            String personId = ctx.pathParam("personId");
+            String hobbyId = ctx.pathParam("hobbyId");
+            Person person = personDAO.findById(Integer.parseInt(personId));
+            Hobby hobby = personDAO.getHobbyById(hobbyId);
+            new ConnectorDAO(Person.class, Hobby.class, HibernateConfig.getEntityManagerFactory()).addAssociation(person, hobby);
+            ctx.json(personDAO.findById(person.getId()));
         };
     }
 }

@@ -1,4 +1,4 @@
-package dk.cphbusiness.controllers;
+package dk.cphbusiness.rest.controllers;
 
 import io.javalin.http.Handler;
 

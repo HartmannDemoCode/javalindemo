@@ -1,6 +1,6 @@
 package dk.cphbusiness.rest;
 
-import dk.cphbusiness.controllers.PersonController;
+import dk.cphbusiness.rest.controllers.PersonController;
 import io.javalin.Javalin;
 import io.javalin.apibuilder.EndpointGroup;
 
@@ -36,7 +36,7 @@ public class P02RoutesDemo {
 //                post("/", pc.create());
                 path("/{id}", () -> {
                     get("/", pc.getById());
-                    get("/name/{name}", pc.getByName());
+                    get("/name/{email}", pc.getByEmail());
 //                    put("/", pc.update());
 //                    delete("/", pc.delete());
                 });

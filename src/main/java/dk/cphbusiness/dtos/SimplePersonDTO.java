@@ -2,11 +2,31 @@ package dk.cphbusiness.dtos;
 
 import lombok.*;
 
+import java.time.LocalDate;
+import java.util.UUID;
+
 @Data
+@Getter
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
 public class SimplePersonDTO {
-    private String name;
-    private int age;
+    private UUID id;
+    private String firstName;
+    private String lastName;
+    private String email;
+    private LocalDate birthday;
+    private JobTitle jobTitle;
+
+    public SimplePersonDTO(String firstName, String lastName, String email, LocalDate birthday, JobTitle jobTitle) {
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.email = email;
+        this.birthday = birthday;
+        this.jobTitle = jobTitle;
+    }
+
+    public enum JobTitle {
+        TEACHER, STUDENT, ADMIN
+    }
 }

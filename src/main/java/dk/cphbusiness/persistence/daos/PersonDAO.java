@@ -1,9 +1,7 @@
 package dk.cphbusiness.persistence.daos;
 
 
-import dk.cphbusiness.persistence.model.Hobby;
-import dk.cphbusiness.persistence.model.Person;
-import dk.cphbusiness.persistence.model.Phone;
+import dk.cphbusiness.persistence.model.*;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
 
@@ -78,6 +76,42 @@ public class PersonDAO extends DAO<Person> {
                     .getSingleResult();
             entityManager.getTransaction().commit();
             return person;
+        } catch (Exception e) {
+            System.out.println("Error: " + e.getMessage());
+            return null;
+        }
+    }
+    public Address getAddressById(int id) {
+        try (EntityManager entityManager = super.getEntityManagerFactory().createEntityManager()) {
+            Address address = entityManager.find(Address.class, id);
+            return address;
+        } catch (Exception e) {
+            System.out.println("Error: " + e.getMessage());
+            return null;
+        }
+    }
+    public Phone getPhoneById(String id) {
+        try (EntityManager entityManager = super.getEntityManagerFactory().createEntityManager()) {
+            Phone phone = entityManager.find(Phone.class, id);
+            return phone;
+        } catch (Exception e) {
+            System.out.println("Error: " + e.getMessage());
+            return null;
+        }
+    }
+    public Hobby getHobbyById(String id) {
+        try (EntityManager entityManager = super.getEntityManagerFactory().createEntityManager()) {
+            Hobby hobby = entityManager.find(Hobby.class, id);
+            return hobby;
+        } catch (Exception e) {
+            System.out.println("Error: " + e.getMessage());
+            return null;
+        }
+    }
+    public Zip getZipById(String id) {
+        try (EntityManager entityManager = super.getEntityManagerFactory().createEntityManager()) {
+            Zip zip = entityManager.find(Zip.class, id);
+            return zip;
         } catch (Exception e) {
             System.out.println("Error: " + e.getMessage());
             return null;

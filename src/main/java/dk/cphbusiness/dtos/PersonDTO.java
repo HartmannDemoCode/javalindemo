@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-@Data
+@Getter
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
@@ -42,15 +42,19 @@ public class PersonDTO {
         if(person.getAddress()!=null)
             this.address = person.getAddress().getStreet()+ ", " + person.getAddress().getZip().getZip() + " " + person.getAddress().getZip().getCityName();
     }
-    public Person getEntity() {
 
-        Person person = new Person();
+    public void setId(String id) {
+        this.id = id;
+    }
+    public Person toEntity() {
+        Person person = Person.builder()
+                .firstName(firstName)
+                .lastName(lastName)
+                .email(email)
+                .birthDate(birthDate)
+                .build();
         if(id!=null)
             person.setId(Integer.parseInt(id));
-        person.setFirstName(firstName);
-        person.setLastName(lastName);
-        person.setEmail(email);
-        person.setBirthDate(birthDate);
         return person;
     }
     public static Set<PersonDTO> getEntities(Set<Person> persons) {

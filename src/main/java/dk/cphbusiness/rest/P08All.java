@@ -1,13 +1,8 @@
 package dk.cphbusiness.rest;
 
-import dk.cphbusiness.controllers.IController;
-import dk.cphbusiness.controllers.PersonController;
-import dk.cphbusiness.controllers.PersonEntityController;
-import dk.cphbusiness.security.SecurityController;
+import dk.cphbusiness.rest.controllers.IController;
+import dk.cphbusiness.rest.controllers.PersonEntityController;
 import dk.cphbusiness.security.SecurityRoutes;
-
-import static io.javalin.apibuilder.ApiBuilder.*;
-import static dk.cphbusiness.security.SecurityRoutes.Role;
 
 public class P08All {
     // 1. Hashing of passwords in security.User
@@ -24,12 +19,6 @@ public class P08All {
             .initiateServer()
             .checkSecurityRoles() // check for role when route is called
             .setRoutes(SecurityRoutes.getSecurityRoutes())
-            .setRoutes(() -> {
-                path("/person2", () -> {
-                    get("/", ctx -> personController.getAll(), Role.ANYONE);
-                    get("/{id}", ctx -> personController.getById(), Role.ANYONE);
-                });
-            })
             .setRoutes(new RestRoutes().personEntityRoutes)
             .startServer(7007)
             .setCORS()

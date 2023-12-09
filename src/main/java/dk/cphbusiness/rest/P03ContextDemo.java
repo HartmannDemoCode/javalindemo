@@ -1,6 +1,6 @@
 package dk.cphbusiness.rest;
 
-import dk.cphbusiness.controllers.ContextDemoController;
+import dk.cphbusiness.rest.controllers.ContextDemoController;
 import io.javalin.Javalin;
 import io.javalin.apibuilder.EndpointGroup;
 

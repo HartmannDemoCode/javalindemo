@@ -1,7 +1,7 @@
 package dk.cphbusiness.rest;
 
-import dk.cphbusiness.controllers.IController;
-import dk.cphbusiness.controllers.PersonController;
+import dk.cphbusiness.rest.controllers.IController;
+import dk.cphbusiness.rest.controllers.PersonController;
 
 import static io.javalin.apibuilder.ApiBuilder.*;
 

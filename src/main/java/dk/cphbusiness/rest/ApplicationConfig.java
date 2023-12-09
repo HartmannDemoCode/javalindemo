@@ -70,6 +70,7 @@ public class ApplicationConfig {
         ctx.header("Access-Control-Allow-Credentials", "true");
     }
 
+    // Adding below methods to ApplicationConfig, means that EVERY ROUTE will be checked for security roles. So open routes must have a role of ANYONE
     public ApplicationConfig checkSecurityRoles() {
         // Check roles on the user (ctx.attribute("username") and compare with permittedRoles using securityController.authorize()
         app.updateConfig(config -> {

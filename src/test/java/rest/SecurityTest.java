@@ -19,12 +19,12 @@ public class SecurityTest {
     private static ApplicationConfig appConfig;
     private static EntityManagerFactory emfTest;
     private static ObjectMapper jsonMapper = new ObjectMapper();
-    private static final String BASE_URL = "http://localhost:7777/api";
 
 
     @BeforeAll
     static void setUpAll() {
-        RestAssured.baseURI = BASE_URL;
+        RestAssured.baseURI = "http://localhost:7777/api";
+
         HibernateConfig.setTestMode(true); // IMPORTANT leave this at the very top of this method in order to use the test database
         RestRoutes restRoutes = new RestRoutes();
 
@@ -148,12 +148,12 @@ public class SecurityTest {
                 .accept("application/json")
                 .header("Authorization", "Bearer "+securityToken)
                 .when()
-                .get("/personEntity").then()
+                .get("/person").then()
                 .statusCode(200)
                 .body("size()", equalTo(3));
     }
     @Test
-    @DisplayName("Test Entities from DB not allowed for User role")
+    @DisplayName("Test POST to Person Entities not allowed for User role")
     public void testEntitiesFromDBNotAllowed() {
         login("user", "user123");
         given()
@@ -161,7 +161,7 @@ public class SecurityTest {
                 .accept("application/json")
                 .header("Authorization", "Bearer "+securityToken)
                 .when()
-                .get("/personEntity").then()
+                .post("/person").then()
                 .statusCode(403); // Forbidden
     }
 }

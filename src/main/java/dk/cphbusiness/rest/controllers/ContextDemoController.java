@@ -1,4 +1,4 @@
-package dk.cphbusiness.controllers;
+package dk.cphbusiness.rest.controllers;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -6,6 +6,8 @@ import dk.cphbusiness.dtos.SimplePersonDTO;
 import io.javalin.http.Handler;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+
+import java.time.LocalDate;
 
 public class ContextDemoController {
     private ObjectMapper jsonMapper = new ObjectMapper();
@@ -65,8 +67,8 @@ public class ContextDemoController {
     public Handler getBodyValidatorDemo(){
         return ctx -> {
             SimplePersonDTO person = ctx.bodyValidator(SimplePersonDTO.class)
-                    .check(p -> p.getName() != null && p.getName().length() > 0, "Name cannot be null or empty")
-                    .check(p -> p.getAge() > 0, "Age must be a positive number")
+                    .check(p -> p.getLastName() != null && p.getLastName().length() > 0, "Name cannot be null or empty")
+                    .check(p -> p.getBirthday().isBefore(LocalDate.now()) , "Age must be a positive number")
                     .get();
             ObjectNode json = jsonMapper.createObjectNode();
             json.put("person", json);

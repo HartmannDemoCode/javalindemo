@@ -1,7 +1,7 @@
 name: GITHUB ACTIONS WORKFLOW DEMO
 on:
   push:
-    branches: [ main ]
+    branches: [ main, hibernate ]
   pull_request:
     branches: [ main ]
 jobs:

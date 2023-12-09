@@ -134,7 +134,7 @@ public class Person implements IJPAEntity<Integer> {
                 ", firstName='" + firstName + "'" +
                 ", lastName='" + lastName + "'" +
                 ", email='" + email + "'" +
-                ", birthDate=" + birthDate +
+                ", birthDate=" + birthDate.toString() +
                 ", creationDate=" + creationDate +
                 '}';
     }
