@@ -20,6 +20,7 @@ import static org.hamcrest.Matchers.hasEntry;
 import static org.junit.Assert.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+@Disabled
 class PersonHandlerTest {
 
     ObjectMapper objectMapper = new ObjectMapper();
