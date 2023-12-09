@@ -41,8 +41,8 @@ public class RestRoutes {
       path("/person",()->{
           before(securityController.authenticate());
           get("/",personEntityController.getAll(), Role.ANYONE);
-          get("/{id}",personEntityController.getById(), Role.ANYONE);
           get("/resetdata",personEntityController.resetData(), Role.ANYONE);
+          get("/{id}",personEntityController.getById(), Role.ANYONE);
           post("/",personEntityController.create(), Role.ADMIN);
           put("/{id}",personEntityController.update(), Role.ADMIN);
           delete("/{id}",personEntityController.delete(), Role.ADMIN);
