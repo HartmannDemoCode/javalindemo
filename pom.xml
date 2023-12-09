@@ -195,6 +195,7 @@
 
     </dependencies>
     <build>
+        <finalName>app</finalName> <!-- This is the name of the jar file -->
         <plugins>
             <plugin>
                 <!--  https://www.baeldung.com/java-accessing-maven-properties  -->
