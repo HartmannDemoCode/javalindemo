@@ -1,11 +1,13 @@
 package dk.cphbusiness.rest.controllers;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import dk.cphbusiness.persistence.daos.ConnectorDAO;
 import dk.cphbusiness.persistence.daos.PersonDAO;
 import dk.cphbusiness.persistence.HibernateConfig;
 import dk.cphbusiness.dtos.PersonDTO;
 import dk.cphbusiness.exceptions.ApiException;
 import dk.cphbusiness.persistence.model.*;
+import dk.cphbusiness.rest.Populator;
 import io.javalin.http.Handler;
 import io.javalin.http.HttpStatus;
 import io.javalin.validation.BodyValidator;
@@ -110,6 +112,13 @@ public class PersonEntityController implements IController {
             Hobby hobby = personDAO.getHobbyById(hobbyId);
             new ConnectorDAO(Person.class, Hobby.class, HibernateConfig.getEntityManagerFactory()).addAssociation(person, hobby);
             ctx.json(personDAO.findById(person.getId()));
+        };
+    }
+    public Handler resetData(){
+        return ctx -> {
+            new Populator().createUsersAndRoles(HibernateConfig.getEntityManagerFactory());
+            new Populator().createPersonEntities(HibernateConfig.getEntityManagerFactory());
+            ctx.json(new ObjectMapper().createObjectNode().put("message", "Data reset"));
         };
     }
 }
