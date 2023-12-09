@@ -20,7 +20,7 @@ public class P08All {
             .checkSecurityRoles() // check for role when route is called
             .setRoutes(SecurityRoutes.getSecurityRoutes())
             .setRoutes(new RestRoutes().personEntityRoutes)
-            .startServer(7007)
+            .startServer(7070)
             .setCORS()
             .setGeneralExceptionHandling()
             .setErrorHandling()
