@@ -65,7 +65,7 @@ public class SecurityTest {
     @Test
     public void testServerIsUp() {
         System.out.println("Testing is server UP");
-        given().when().get("/open").then().statusCode(200);
+        given().when().get("/open/person").then().statusCode(200);
     }
     private static String securityToken;
 
@@ -116,7 +116,7 @@ public class SecurityTest {
     public void testCorsHeaders() {
         given()
                 .when()
-                .get("/open")
+                .get("/open/person")
                 .then()
                 .header("Access-Control-Allow-Origin", "*")
                 .header("Access-Control-Allow-Methods", "GET, POST, PUT, PATCH, DELETE, OPTIONS")

@@ -60,7 +60,7 @@ class PersonHandlerTest {
     @DisplayName("Hul igennem")
     public void testServerIsUp() {
         System.out.println("Testing is server UP");
-        given().when().get("/open").peek().then().statusCode(200);
+        given().when().get("/open/person").peek().then().statusCode(200);
     }
 
 //    @Test
@@ -85,7 +85,7 @@ class PersonHandlerTest {
         given()
                 .contentType("application/json")
                 .when()
-                .get("/open")
+                .get("/open/person")
                 .then()
                 .assertThat()
                 .statusCode(200)
