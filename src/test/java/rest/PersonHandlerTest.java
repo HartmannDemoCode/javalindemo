@@ -25,7 +25,7 @@ class PersonHandlerTest {
 
     ObjectMapper objectMapper = new ObjectMapper();
     private static ApplicationConfig appConfig;
-    private static final String BASE_URL = "http://localhost:7777/api";
+    private static final String BASE_URL = "http://localhost:7777";
 
     @BeforeAll
     static void setUpAll() {

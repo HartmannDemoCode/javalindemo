@@ -23,7 +23,7 @@ public class SecurityTest {
 
     @BeforeAll
     static void setUpAll() {
-        RestAssured.baseURI = "http://localhost:7777/api";
+        RestAssured.baseURI = "http://localhost:7777";
 
         HibernateConfig.setTestMode(true); // IMPORTANT leave this at the very top of this method in order to use the test database
         RestRoutes restRoutes = new RestRoutes();
