@@ -52,7 +52,7 @@ public class ApplicationConfig {
             else
                 config.staticFiles.add("/public"); // enables serving of static files from the public folder in the classpath. PROs: easy to use, CONs: you have to restart the server every time you change a file
             config.http.defaultContentType = "application/json"; // default content type for requests
-            config.routing.contextPath = "/api"; // base path for all routes
+            config.routing.contextPath = "/"; // base path for all routes
             config.plugins.register(new RouteOverviewPlugin("/routes", Role.ADMIN)); // html overview of all registered routes at /routes for api documentation: https://javalin.io/news/2019/08/11/javalin-3.4.1-released.html
         });
         return appConfig;
