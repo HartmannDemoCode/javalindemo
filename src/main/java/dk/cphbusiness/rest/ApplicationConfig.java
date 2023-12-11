@@ -17,6 +17,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static io.javalin.apibuilder.ApiBuilder.path;
+import dk.cphbusiness.security.SecurityRoutes.Role;
 //import io.javalin.plugin.bundled.
 
 public class ApplicationConfig {
@@ -40,7 +41,7 @@ public class ApplicationConfig {
             config.plugins.enableDevLogging(); // enables extensive development logging in terminal
             config.http.defaultContentType = "application/json"; // default content type for requests
             config.routing.contextPath = "/api"; // base path for all routes
-            config.plugins.register(new RouteOverviewPlugin("/routes")); // html overview of all registered routes at /routes for api documentation: https://javalin.io/news/2019/08/11/javalin-3.4.1-released.html
+            config.plugins.register(new RouteOverviewPlugin("/routes", Role.ADMIN)); // html overview of all registered routes at /routes for api documentation: https://javalin.io/news/2019/08/11/javalin-3.4.1-released.html
         });
         return appConfig;
     }

@@ -301,9 +301,10 @@ import static org.hamcrest.Matchers.*;
     - void addAssociation(T entity, A associatedEntity)
     - void removeAssociation(T entity, A associatedEntity)
     - Its purpose is to facilitate the creation of DAOs that can add and remove one entity from another.
-    - It is implemented by the abstract class AConnectorDAO<T,A> that implements IConnectorDAO<T,A> and has a protected EntityManagerFactory
-      - This class has the implementation of the Interface methods
+    - It is implemented by the abstract class AConnectorDAO<T,A> that implements IConnectorDAO<T,A> and has 2 methods: addAssociation and removeAssociation
+      - The class has 2 generic types <T,A> where:
       - T is the main entity (E.g. Person)
       - A is the associated entity (E.g. Address)
       - A extends both IAssociableEntity & IJPAEntity (firstly to provide add and remove methods and secondly to provide a getId() method)
+    
       
