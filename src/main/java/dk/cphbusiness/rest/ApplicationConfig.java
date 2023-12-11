@@ -9,6 +9,7 @@ import io.javalin.Javalin;
 import io.javalin.apibuilder.EndpointGroup;
 import io.javalin.http.Context;
 import io.javalin.http.HttpStatus;
+import io.javalin.http.staticfiles.Location;
 import io.javalin.plugin.bundled.RouteOverviewPlugin;
 import jakarta.persistence.EntityManagerFactory;
 
@@ -35,10 +36,21 @@ public class ApplicationConfig {
     }
 
     public ApplicationConfig initiateServer() {
+        System.out.println("Working Directory = " + System.getProperty("user.dir"));
+        String separator = System.getProperty("file.separator");
         app = Javalin.create(config -> {
+            boolean IS_DEV = true; // TODO: Remember to set this to false when pushing to github
             // add an accessManager. Even though it does nothing, now it is there to be updated later.
 //            config.accessManager(((handler, context, set) -> {}));
             config.plugins.enableDevLogging(); // enables extensive development logging in terminal
+            if(IS_DEV) {
+                config.staticFiles.add(System.getProperty("user.dir")+System.getProperty("file.separator")+"staticfiles", Location.EXTERNAL); // enables serving of static files from an external folder out side of the classpath which means that you can change the files without restarting the server. PROs you dont have to restart the server, CONs: you have to set the path to the folder
+            }
+            else if(System.getenv("STATIC_FILE_PATH") != null) { // if the env variable STATIC_FILE_PATH is set, then add the external folder to the static files
+                config.staticFiles.add(System.getProperty("user.dir")+separator+System.getenv("STATIC_FILE_PATH"), Location.EXTERNAL); // enables serving of static files from an external folder out side of the classpath which means that you can change the files without restarting the server. PROs you dont have to restart the server, CONs: you have to set the path to the folder
+            }
+            else
+                config.staticFiles.add("/public"); // enables serving of static files from the public folder in the classpath. PROs: easy to use, CONs: you have to restart the server every time you change a file
             config.http.defaultContentType = "application/json"; // default content type for requests
             config.routing.contextPath = "/api"; // base path for all routes
             config.plugins.register(new RouteOverviewPlugin("/routes", Role.ADMIN)); // html overview of all registered routes at /routes for api documentation: https://javalin.io/news/2019/08/11/javalin-3.4.1-released.html
@@ -58,7 +70,7 @@ public class ApplicationConfig {
         app.before(ctx -> {
             setCorsHeaders(ctx);
         });
-        app.options("/*", ctx -> {
+        app.options("/*", ctx -> { // Burde nok ikke være nødvendig?
             setCorsHeaders(ctx);
         });
         return appConfig;
@@ -149,5 +161,12 @@ public class ApplicationConfig {
         });
         return appConfig;
     }
+
+//    public ApplicationConfig setStaticFiles(String dirPath){
+//        app.updateConfig(config -> {
+//            config.staticFiles.add("/public", Location.EXTERNAL);
+//        });
+//        return appConfig;
+//    }
 
 }

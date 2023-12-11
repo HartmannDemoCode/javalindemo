@@ -4,6 +4,9 @@ import dk.cphbusiness.rest.controllers.IController;
 import dk.cphbusiness.rest.controllers.PersonEntityController;
 import dk.cphbusiness.security.SecurityRoutes;
 
+import static io.javalin.apibuilder.ApiBuilder.get;
+import static io.javalin.apibuilder.ApiBuilder.path;
+
 public class P08All {
     // 1. Hashing of passwords in security.User
     // 2. Login and register in SecurityController
@@ -22,6 +25,11 @@ public class P08All {
             .setRoutes(SecurityRoutes.getSecuredRoutes())
             .setRoutes(new RestRoutes().getOpenRoutes())
             .setRoutes(new RestRoutes().personEntityRoutes) // A different way to get the EndpointGroup.
+                .setRoutes(()->{
+                    path("/index",()->{
+                        get("/",ctx->ctx.render("index.html"));
+                    });
+                })
             .startServer(7070)
             .setCORS()
             .setGeneralExceptionHandling()
