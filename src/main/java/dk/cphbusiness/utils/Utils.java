@@ -6,6 +6,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
 
+/**
+ * Purpose: Utility class to read properties from a file
+ * Author: Thomas Hartmann
+ */
 public class Utils {
     public static void main(String[] args) {
         System.out.println(getPropertyValue("db.name", "properties-from-pom.properties"));

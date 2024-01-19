@@ -22,6 +22,10 @@ import java.text.ParseException;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+/**
+ * Purpose: To handle security in the API
+ * Author: Thomas Hartmann
+ */
 public class SecurityController implements ISecurityController {
     TokenUtils tokenUtils = new TokenUtils();
     ObjectMapper objectMapper = new ObjectMapper();

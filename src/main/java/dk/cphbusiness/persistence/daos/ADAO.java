@@ -12,9 +12,9 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
- * This is an abstract class that is used to perform CRUD operations on any entity. It can be extended to gain access to basic CRUD operations.
- *
- * @param <T>
+ * Purpose: This is an abstract class that is used to perform CRUD operations on any entity. It can be extended to gain access to basic CRUD operations.
+ * Author: Thomas Hartmann
+ * @param <T> The entity type that the DAO is used for
  */
 abstract class ADAO<T extends IJPAEntity> implements IDAO<T> {
 

@@ -6,6 +6,10 @@ import jakarta.persistence.Id;
 import jakarta.persistence.ManyToOne;
 import lombok.*;
 
+/**
+ * Purpose of this class is to
+ * Author: Thomas Hartmann
+ */
 @Entity
 @NoArgsConstructor
 @Getter

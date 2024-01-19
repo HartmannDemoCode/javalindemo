@@ -5,6 +5,10 @@ import dk.cphbusiness.rest.controllers.PersonController;
 
 import static io.javalin.apibuilder.ApiBuilder.*;
 
+/**
+ * Purpose: To demonstrate the use of unprotected routes
+ * Author: Thomas Hartmann
+ */
 public class P04FullCRUDDemo {
     private static IController personController = new PersonController();
     public static void main(String[] args) {

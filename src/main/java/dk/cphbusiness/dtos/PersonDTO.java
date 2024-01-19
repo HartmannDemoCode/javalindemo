@@ -8,6 +8,10 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+/**
+ * Purpose of this class is to
+ * Author: Thomas Hartmann
+ */
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor

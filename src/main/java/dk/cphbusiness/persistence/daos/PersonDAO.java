@@ -8,6 +8,11 @@ import jakarta.persistence.EntityManagerFactory;
 import java.util.List;
 import java.util.Set;
 
+/**
+ * Purpose: This class is a specific DAO (Data Access Object) that can be used to perform CRUD operations on the Person entity plus some extra queries.
+ * @param <T> The entity class that the DAO should be used for.
+ * Author: Thomas Hartmann
+ */
 public class PersonDAO extends DAO<Person> {
 
     public PersonDAO(Class<Person> entityClass, EntityManagerFactory emf) {

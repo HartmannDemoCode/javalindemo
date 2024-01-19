@@ -9,6 +9,10 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.TimeZone;
 
+/**
+ * Purpose: Entity to work with timezones and flights
+ * Author: Thomas Hartmann
+ */
 @Entity
 public class Flight {
 

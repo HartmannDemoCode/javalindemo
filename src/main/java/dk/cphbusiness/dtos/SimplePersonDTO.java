@@ -5,6 +5,10 @@ import lombok.*;
 import java.time.LocalDate;
 import java.util.UUID;
 
+/**
+ * Purpose of this class is to
+ * Author: Thomas Hartmann
+ */
 @Data
 @Getter
 @AllArgsConstructor

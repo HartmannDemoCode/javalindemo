@@ -6,8 +6,8 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * This is an interface for making a DAO (Data Access Object) that can be used to perform CRUD operations on any entity.
- *
+ * Purpose: This is an interface for making a DAO (Data Access Object) that can be used to perform CRUD operations on any entity.
+ * Author: Thomas Hartmann
  * @param <T>
  */
 interface IDAO<T extends IJPAEntity> {

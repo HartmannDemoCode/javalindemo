@@ -7,6 +7,10 @@ import io.javalin.apibuilder.EndpointGroup;
 
 import static io.javalin.apibuilder.ApiBuilder.*;
 
+/**
+ * Purpose: To demonstrate the use of routes and EndpointGroup.
+ * Author: Thomas Hartmann
+ */
 public class P02RoutesDemo {
     public static void main(String[] args) {
         // A more complex web server using routes and endpoint groups

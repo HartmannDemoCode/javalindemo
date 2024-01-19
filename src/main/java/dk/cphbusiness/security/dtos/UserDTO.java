@@ -7,6 +7,10 @@ import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 
+/**
+ * Purpose: To hold information about a user
+ * Author: Thomas Hartmann
+ */
 @Getter
 @ToString
 @AllArgsConstructor

@@ -8,7 +8,8 @@ import jakarta.persistence.EntityManagerFactory;
 import java.time.LocalDate;
 
 /**
- * This class is a generic DAO (Data Access Object) that can be used to perform CRUD operations on any entity.
+ * Purpose: This class is a generic DAO (Data Access Object) that can be used to perform CRUD operations on any entity.
+ * Author: Thomas Hartmann
  * @param <T> The entity class that the DAO should be used for.
  */
 public class DAO<T extends IJPAEntity> extends ADAO<T> {

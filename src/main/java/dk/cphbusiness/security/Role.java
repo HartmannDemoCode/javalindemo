@@ -9,6 +9,10 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+/**
+ * Purpose: To handle security in the API
+ *  Author: Thomas Hartmann
+ */
 @Entity
 @Table(name = "roles")
 @NamedQueries(@NamedQuery(name = "Role.deleteAllRows", query = "DELETE from Role"))

@@ -12,6 +12,10 @@ import org.hibernate.service.ServiceRegistry;
 
 import java.util.Properties;
 
+/**
+ * Purpose: This class is used to configure Hibernate and create an EntityManagerFactory.
+ * Author: Thomas Hartmann
+ */
 public class HibernateConfig {
     private static EntityManagerFactory emf;
     private static boolean isIntegrationTest = false; // this flag is set for

@@ -4,6 +4,10 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.TimeZone;
 
+/**
+ * Purpose: DTO to work with timezones and flights
+ * Author: Thomas Hartmann
+ */
 public class FlightDTO {
 
     private String origin;

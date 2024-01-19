@@ -8,6 +8,10 @@ import lombok.ToString;
 import java.util.HashSet;
 import java.util.Set;
 
+/**
+ * Purpose of this class is to
+ * Author: Thomas Hartmann
+ */
 @Entity
 @Getter
 @ToString

@@ -21,6 +21,10 @@ import static io.javalin.apibuilder.ApiBuilder.path;
 import dk.cphbusiness.security.SecurityRoutes.Role;
 //import io.javalin.plugin.bundled.
 
+/**
+ * Purpose: To configure the Javalin server
+ * Author: Thomas Hartmann
+ */
 public class ApplicationConfig {
     private ObjectMapper jsonMapper = new ObjectMapper();
     private static ApplicationConfig appConfig;

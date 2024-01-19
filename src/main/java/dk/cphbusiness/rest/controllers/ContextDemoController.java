@@ -9,6 +9,10 @@ import jakarta.servlet.http.HttpServletResponse;
 
 import java.time.LocalDate;
 
+/**
+ * Purpose: To demonstrate the use of the Context object
+ * Author: Thomas Hartmann
+ */
 public class ContextDemoController {
     private ObjectMapper jsonMapper = new ObjectMapper();
     public Handler getDemo(){

@@ -12,6 +12,10 @@ import io.javalin.http.Handler;
 import io.javalin.http.HttpStatus;
 import io.javalin.validation.BodyValidator;
 
+/**
+ * Purpose: To demonstrate rest api with Javalin and a database.
+ * Author: Thomas Hartmann
+ */
 public class PersonEntityController implements IController {
 
     private static PersonEntityController instance;

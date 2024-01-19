@@ -4,6 +4,10 @@ import dk.cphbusiness.rest.controllers.PersonController;
 
 import static io.javalin.apibuilder.ApiBuilder.*;
 
+/**
+ * Purpose: To demonstrate the use of error handling
+ * Author: Thomas Hartmann
+ */
 public class P05ErrorHandling {
     // ApplicationConfig.setApiExceptionHandling() is called in the ApplicationConfig constructor
     //

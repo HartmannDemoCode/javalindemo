@@ -9,6 +9,10 @@ import jakarta.persistence.EntityManagerFactory;
 
 import java.time.LocalDate;
 
+/**
+ * Purpose: To populate the database with users and roles
+ * Author: Thomas Hartmann
+ */
 public class Populator {
     // method to create users and roles before each test
     public void createUsersAndRoles(EntityManagerFactory emf) {

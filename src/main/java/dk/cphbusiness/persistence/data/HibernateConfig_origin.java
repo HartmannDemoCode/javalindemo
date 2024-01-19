@@ -12,6 +12,10 @@ import org.hibernate.service.ServiceRegistry;
 
 import java.util.Properties;
 
+/**
+ * Purpose: No longer in use.
+ * Author: Thomas Hartmann
+ */
 public class HibernateConfig_origin {
     private static EntityManagerFactory emf;
     //    private static boolean isIntegrationTest = false; // this flag is set for

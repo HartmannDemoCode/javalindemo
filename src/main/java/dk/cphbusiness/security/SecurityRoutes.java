@@ -6,6 +6,10 @@ import io.javalin.security.RouteRole;
 
 import static io.javalin.apibuilder.ApiBuilder.*;
 
+/**
+ * Purpose: To handle security in the API
+ *  Author: Thomas Hartmann
+ */
 public class SecurityRoutes {
     private static ObjectMapper jsonMapper = new ObjectMapper();
     // TODO : SOLVE PROBLEM WITH INJECTING EntityManagerFactory

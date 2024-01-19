@@ -8,6 +8,11 @@ import io.javalin.apibuilder.EndpointGroup;
 
 import static io.javalin.apibuilder.ApiBuilder.*;
 
+/**
+ * Purpose: To demonstrate the use of unprotected routes and protected ones
+ *
+ * Author: Thomas Hartmann
+ */
 public class RestRoutes {
     PersonController personController = new PersonController(); // IN memory person collection
     PersonEntityController personEntityController = PersonEntityController.getInstance(); // Person collection in DB

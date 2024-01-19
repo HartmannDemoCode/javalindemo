@@ -1,5 +1,9 @@
 package dk.cphbusiness.exceptions;
 
+/**
+ * Purpose of this class is to
+ * Author: Thomas Hartmann
+ */
 public class ApiException extends RuntimeException {
         private int statusCode;
         public ApiException(int statusCode, String message) {

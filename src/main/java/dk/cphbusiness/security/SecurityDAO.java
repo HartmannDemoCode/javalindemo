@@ -7,6 +7,10 @@ import jakarta.persistence.*;
 import java.util.*;
 
 
+/**
+ * Purpose: To handle security in the API
+ * Author: Thomas Hartmann
+ */
 public class SecurityDAO implements ISecurityDAO {
 
     private static ISecurityDAO instance;

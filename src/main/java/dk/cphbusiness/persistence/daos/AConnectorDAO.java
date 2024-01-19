@@ -7,6 +7,10 @@ import jakarta.persistence.EntityManagerFactory;
 
 //interface IJPAAssociationEntity<T, A> extends IJPAEntity<T>, IAssociableEntity<A>{ } // I AM Type T and I would like to associate with type A. Combine the 2 interfaces to use below, in order to give type A both a getId() and addAssociation() method and add and remove association methods.
 
+/**
+ * Purpose of this class is to connect entities
+ * Author: Thomas Hartmann
+ */
 abstract class AConnectorDAO<T extends IJPAEntity, A extends IAssociableEntity & IJPAEntity> implements IConnectorDAO<T, A>{
     private EntityManagerFactory emf;
     private final Class<T> entityType;

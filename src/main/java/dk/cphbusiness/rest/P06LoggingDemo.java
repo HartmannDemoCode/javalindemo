@@ -4,6 +4,10 @@ import io.javalin.Javalin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * Purpose: To demonstrate logging with slf4j and logback
+ * Author: Thomas Hartmann
+ */
 public class P06LoggingDemo {
     // https://mkyong.com/logging/slf4j-logback-tutorial/
     // Step 1: Add dependencies to pom.xml: slf4j-api, logback-classic

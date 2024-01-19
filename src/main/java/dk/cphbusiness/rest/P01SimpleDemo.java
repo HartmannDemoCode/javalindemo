@@ -2,6 +2,10 @@ package dk.cphbusiness.rest;
 
 import io.javalin.Javalin;
 
+/**
+ * Purpose: To demonstrate rest api with Javalin and a database.
+ * Author: Thomas Hartmann
+ */
 public class P01SimpleDemo {
     public static void main(String[] args) {
         Javalin app = Javalin.create().start(7007);

@@ -11,6 +11,10 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
+/**
+ * Purpose: To demonstrate rest api with Javalin and no database.
+ * Author: Thomas Hartmann
+ */
 public class PersonController implements IController {
     Map<UUID, SimplePersonDTO> persons = new HashMap(Map.of(
              UUID.randomUUID(), new SimplePersonDTO("Anders", "Henningsen", "hans@mail.com",LocalDate.of(1966, 1, 31), SimplePersonDTO.JobTitle.TEACHER)

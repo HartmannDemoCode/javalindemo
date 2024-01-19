@@ -15,6 +15,10 @@ import java.util.Date;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+/**
+ * Purpose: to handle tokens
+ * Author: Thomas Hartmann
+ */
 public class TokenUtils {
     public UserDTO getUserWithRolesFromToken(String token) throws ParseException {
         // Return a user with Set of roles as strings

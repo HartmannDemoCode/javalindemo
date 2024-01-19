@@ -2,6 +2,10 @@ package dk.cphbusiness.rest;
 
 import dk.cphbusiness.security.SecurityRoutes;
 
+/**
+ * Purpose: To demonstrate the use of security
+ * Author: Thomas Hartmann
+ */
 public class P07SecurityDemo {
     // 1. Hashing of passwords in security.User
     // 2. Login and register in SecurityController

@@ -7,6 +7,10 @@ import io.javalin.apibuilder.EndpointGroup;
 import static io.javalin.apibuilder.ApiBuilder.*;
 import static io.javalin.apibuilder.ApiBuilder.path;
 
+/**
+ * Purpose: To demonstrate the use of the context object.
+ * Author: Thomas Hartmann
+ */
 public class P03ContextDemo {
     private static ContextDemoController cdc = new ContextDemoController();
     public static void main(String[] args) {

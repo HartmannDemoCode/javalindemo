@@ -10,6 +10,10 @@ import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
+/**
+ * Purpose: To handle security in the API
+ * Author: Thomas Hartmann
+ */
 @Entity
 @Table(name = "users")
 @NamedQueries(@NamedQuery(name = "User.deleteAllRows", query = "DELETE from User"))
