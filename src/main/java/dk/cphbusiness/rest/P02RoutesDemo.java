@@ -26,9 +26,9 @@ public class P02RoutesDemo {
                 get("/",personController.getAll());
                 get("/{id}",personController.getById());
 //                TODO: Covered next time on REST:
-//                post("/",personController.create());
-//                put("/{id}",personController.update());
-//                delete("/{id}",personController.delete());
+                post("/",personController.create());
+                put("/{id}",personController.update());
+                delete("/{id}",personController.delete());
             });
         };
     }

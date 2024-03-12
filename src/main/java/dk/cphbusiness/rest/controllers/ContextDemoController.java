@@ -8,6 +8,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 import java.time.LocalDate;
+import java.util.Map;
 
 /**
  * Purpose: To demonstrate the use of the Context object
@@ -34,6 +35,8 @@ public class ContextDemoController {
     public Handler getHeaderDemo(){
         return ctx -> {
             String header = ctx.header("X-EXAMPLE-HEADER");
+            Map<String, String> headers =  ctx.headerMap();
+            System.out.println("GET HEADER DEMO: "+headers);
             ObjectNode json = jsonMapper.createObjectNode();
             json.put("header", header);
             json.put("message","GetHeaderDemo");

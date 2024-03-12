@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDate;
+import java.time.Period;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
@@ -141,5 +142,8 @@ public class Person implements IJPAEntity<Integer> {
                 ", birthDate=" + birthDate.toString() +
                 ", creationDate=" + creationDate +
                 '}';
+    }
+    public int getAge(){
+        return Period.between(LocalDate.now(), birthDate).getYears();
     }
 }

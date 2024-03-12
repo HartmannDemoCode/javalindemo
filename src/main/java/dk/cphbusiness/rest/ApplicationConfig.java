@@ -136,18 +136,19 @@ public class ApplicationConfig {
 //    }
 
     public ApplicationConfig setErrorHandling() {
-        // To use this one, just set ctx.status(404) in the controller and add a ctx.attribute("message", "Your message") to the ctx
+        // To use this one, just set ctx.status(404) in the controller and add a ctx.attribute("msg", "Your message") to the ctx
         // Look at the PersonController: delete() method for an example
+        // Might be better to just use the setApiExceptionHandling method below
         app.error(404, ctx -> {
             String message = ctx.attribute("msg");
-            message = "{\"msg\": \"" + message + "\"}";
+            message = "{\"msssssg\": \"" + message + "\"}";
             ctx.json(message);
         });
         return appConfig;
     }
 
     public ApplicationConfig setApiExceptionHandling() {
-        // tested in PersonController: getAll()
+        // Might be overruled by the setErrorHandling method
         app.exception(ApiException.class, (e, ctx) -> {
             int statusCode = e.getStatusCode();
             System.out.println("Status code: " + statusCode + ", Message: " + e.getMessage());
@@ -174,5 +175,12 @@ public class ApplicationConfig {
 //        });
 //        return appConfig;
 //    }
+    public ApplicationConfig beforeFilter(){
+        app.before(ctx->{
+            String pathInfo = ctx.req().getPathInfo();
+            ctx.req().getHeaderNames().asIterator().forEachRemaining(el-> System.out.println(el));
+        });
+        return appConfig;
+    }
 
 }

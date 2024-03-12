@@ -1,10 +1,7 @@
 package dk.cphbusiness.persistence.model;
 
 import jakarta.persistence.*;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.ToString;
+import lombok.*;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -16,11 +13,15 @@ import java.util.Set;
 @Entity
 @Getter
 @ToString
+@AllArgsConstructor
 @Builder
 @NoArgsConstructor
 public class Hobby implements IJPAEntity<String>, IAssociableEntity<Person>{
 
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
     @Column(name = "name", unique = true, nullable = false)
     private String name;
 
@@ -65,5 +66,9 @@ public class Hobby implements IJPAEntity<String>, IAssociableEntity<Person>{
         HobbyCategory(String name) {
             this.name = name;
         }
+    }
+
+    public static void main(String[] args) {
+
     }
 }

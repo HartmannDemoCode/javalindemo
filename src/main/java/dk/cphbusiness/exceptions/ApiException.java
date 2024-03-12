@@ -1,7 +1,7 @@
 package dk.cphbusiness.exceptions;
 
 /**
- * Purpose of this class is to
+ * Purpose of this class is to make an Exception with a HTTP status code
  * Author: Thomas Hartmann
  */
 public class ApiException extends RuntimeException {

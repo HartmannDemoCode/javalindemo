@@ -50,6 +50,7 @@ public class RestRoutes {
           get("/", personEntityController.getAll(), Role.ANYONE);
           get("/resetdata", personEntityController.resetData(), Role.ADMIN);
           get("/{id}", personEntityController.getById(), Role.ANYONE);
+
           post("/", personEntityController.create(), Role.ADMIN);
           put("/{id}", personEntityController.update(), Role.ADMIN);
           delete("/{id}", personEntityController.delete(), Role.ADMIN);
@@ -57,6 +58,8 @@ public class RestRoutes {
           post("connect/phone/{personId}/{phoneId}", personEntityController.connectPersonToPhone(), Role.ADMIN);
           post("connect/hobby/{personId}/{hobbyId}", personEntityController.connectPersonToHobby(), Role.ADMIN);
 
+          // For RestAssured Tests
+//          get("/person/")
       });
     };
 }

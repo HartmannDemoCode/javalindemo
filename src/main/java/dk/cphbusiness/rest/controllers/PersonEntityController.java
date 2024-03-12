@@ -47,10 +47,13 @@ public class PersonEntityController implements IController {
 //            ctx.pathParamAsClass("id", Integer.class)
 //                    .check(id -> id > 0 && id < 4, "Id must be between 1 and 3"); // Use a path param validator
             int id = Integer.parseInt(ctx.pathParam("id"));
+            System.out.println("IIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIID: "+id);
             Person p = personDAO.findById(id);
-            if (p == null)
+            if (p == null){
+                ctx.attribute("msg", "No person with that id");
                 throw new ApiException(404, "No person with that id");
-            ctx.status(HttpStatus.OK).json(p);
+            }
+            ctx.status(HttpStatus.OK).json(new PersonDTO(p));
         };
     }
 
@@ -60,8 +63,8 @@ public class PersonEntityController implements IController {
             BodyValidator<PersonDTO> validator = ctx.bodyValidator(PersonDTO.class);
 //            validator.check(person -> person.getAge() > 0 && person.getAge() < 120, "Age must be greater than 0 and less than 120");
             PersonDTO person = ctx.bodyAsClass(PersonDTO.class);
-            personDAO.create(person.toEntity());
-            ctx.json(person).status(HttpStatus.CREATED);
+            Person created = personDAO.create(person.toEntity());
+            ctx.json(new PersonDTO(created)).status(HttpStatus.CREATED);
         };
     }
 

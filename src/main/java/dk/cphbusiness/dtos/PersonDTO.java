@@ -34,7 +34,8 @@ public class PersonDTO {
         this.birthDate = birthDate;
     }
     public PersonDTO(Person person) {
-        this.id = person.getId().toString();
+        if(person.getId()!=null)
+            this.id = person.getId().toString();
         this.firstName = person.getFirstName();
         this.lastName = person.getLastName();
         this.email = person.getEmail();
@@ -63,5 +64,36 @@ public class PersonDTO {
     }
     public static Set<PersonDTO> getEntities(Set<Person> persons) {
         return persons.stream().map(person -> new PersonDTO(person)).collect(Collectors.toSet());
+    }
+
+    @Override
+    public String toString() {
+        return "PersonDTO{" +
+                "id='" + id + '\'' +
+                ", firstName='" + firstName + '\'' +
+                ", lastName='" + lastName + '\'' +
+                ", email='" + email + '\'' +
+                ", phones=" + phones +
+                ", birthDate=" + birthDate +
+                ", address='" + address + '\'' +
+                ", hobbies=" + hobbies +
+                '}';
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if(obj==null)
+            return false;
+        if(obj.getClass()!=this.getClass())
+            return false;
+        PersonDTO other = (PersonDTO) obj;
+        return this.id.equals(other.id)
+                && this.firstName.equals(other.firstName)
+                && this.lastName.equals(other.lastName)
+                && this.email.equals(other.email)
+//                && this.address.equals(other.address)
+//                && this.hobbies.equals(other.hobbies)
+//                && this.phones.equals(other.phones)
+                && this.birthDate.equals(other.birthDate);
     }
 }

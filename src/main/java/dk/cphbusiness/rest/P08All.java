@@ -20,7 +20,7 @@ import static io.javalin.apibuilder.ApiBuilder.path;
  */
 public class P08All {
 
-    private static IController personController = PersonEntityController.getInstance();
+//    private static IController personController = PersonEntityController.getInstance();
     public static void main(String[] args) {
         ApplicationConfig
             .getInstance()
@@ -38,7 +38,7 @@ public class P08All {
             .startServer(7070)
             .setCORS()
             .setGeneralExceptionHandling()
-            .setErrorHandling()
+//            .setErrorHandling()
             .setApiExceptionHandling();
     }
 

@@ -3,11 +3,13 @@ package dk.cphbusiness.daos;
 import dk.cphbusiness.persistence.daos.ConnectorDAO;
 import dk.cphbusiness.persistence.daos.DAO;
 import dk.cphbusiness.persistence.model.Address;
+import dk.cphbusiness.persistence.model.Hobby;
 import dk.cphbusiness.persistence.model.Person;
 import dk.cphbusiness.persistence.model.Zip;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
 import dk.cphbusiness.persistence.HibernateConfig;
+import org.hibernate.boot.jaxb.internal.stax.HbmEventReader;
 import org.junit.jupiter.api.*;
 
 import java.time.LocalDate;
@@ -19,8 +21,11 @@ class DAOTest {
     private static DAO<Person> personDao;
     private static DAO<Address> addressDao;
     private static DAO<Zip> zipDao;
+    private static DAO<Hobby> hobbyDAO;
     private static ConnectorDAO<Person,Address> personAddressConnectorDAO;
     private static ConnectorDAO<Address,Zip> addressZipConnectorDAO;
+    private static ConnectorDAO<Person,Hobby> personHobbyConnectorDAO;
+
     Person p1, p2, p3;
     Address a1, a2, a3;
 
@@ -30,9 +35,11 @@ class DAOTest {
         emf = HibernateConfig.getEntityManagerFactory();
         personDao = new DAO<>(Person.class, emf);
         addressDao = new DAO<>(Address.class, emf);
+        hobbyDAO = new DAO<>(Hobby.class, emf);
         zipDao = new DAO<>(Zip.class, emf);
         personAddressConnectorDAO = new ConnectorDAO<>(Person.class, Address.class, emf);
         addressZipConnectorDAO = new ConnectorDAO<>(Address.class, Zip.class, emf);
+        personHobbyConnectorDAO = new ConnectorDAO<>(Person.class, Hobby.class, emf);
     }
 
     @AfterAll
@@ -79,6 +86,18 @@ class DAOTest {
         Person toBeCreated = new Person("Kurt", "Kurtson", "kurt@mail.com", LocalDate.now());
         Person person = personDao.create(toBeCreated);
         assert person.getId() != null;
+    }
+
+    @Test
+    @DisplayName("Test that we can create Hobbies")
+    void createHobbies() {
+        Person toBeCreated = new Person("Kurt", "Kurtson", "kurt@mail.com", LocalDate.now());
+        Hobby hobby = new Hobby("Horseback riding", Hobby.HobbyCategory.COMPETITION);
+        Person person = personDao.create(toBeCreated);
+        hobby.addAssociation(toBeCreated);
+
+        System.out.println("HOBBY: "+hobby.toString());
+        assert hobby.getId() != null;
     }
 
     @Test

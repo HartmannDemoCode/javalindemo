@@ -16,8 +16,8 @@ import java.util.UUID;
  * Author: Thomas Hartmann
  */
 public class PersonController implements IController {
-    Map<UUID, SimplePersonDTO> persons = new HashMap(Map.of(
-             UUID.randomUUID(), new SimplePersonDTO("Anders", "Henningsen", "hans@mail.com",LocalDate.of(1966, 1, 31), SimplePersonDTO.JobTitle.TEACHER)
+    static Map<UUID, SimplePersonDTO> persons = new HashMap(Map.of(
+             UUID.randomUUID(), new SimplePersonDTO("Anders", "Henningsen", "hans@mail.com", LocalDate.of(1966, 1, 31), SimplePersonDTO.JobTitle.TEACHER)
             , UUID.randomUUID(), new SimplePersonDTO("Bente", "Henningsen", "grethe@mail.com", LocalDate.of(1976, 12, 31), SimplePersonDTO.JobTitle.TEACHER)
             , UUID.randomUUID(), new SimplePersonDTO("Carl", "Frederiksen", "jens@mail.com", LocalDate.of(1986, 2, 9), SimplePersonDTO.JobTitle.STUDENT)
             , UUID.randomUUID(), new SimplePersonDTO("Donna", "Frederiksen", "jorgen@mail.com", LocalDate.of(1996, 12, 22), SimplePersonDTO.JobTitle.STUDENT)
@@ -41,7 +41,8 @@ public class PersonController implements IController {
         return ctx -> {
             ctx.pathParamAsClass("id", String.class)
             .check(id -> id.length() == 36, "Id must be UUID with 36 characters"); // Use a path param validator
-            String id = ctx.pathParam("id");
+            UUID id = UUID.fromString(ctx.pathParam("id"));
+            System.out.println("ID: "+id);
             if(!persons.containsKey(id))
                 throw new ApiException(404, "No person with that id");
             ctx.json(persons.get(id));
@@ -79,7 +80,7 @@ public class PersonController implements IController {
     @Override
     public Handler delete() {
         return ctx -> {
-            String id = ctx.pathParam("id");
+            UUID id = UUID.fromString(ctx.pathParam("id"));
             if(! persons.containsKey(id)){
                 ctx.status(404);
                 ctx.attribute("msg", String.format("No person with id: {id}", id));
@@ -105,4 +106,8 @@ public class PersonController implements IController {
             }
         };
     }
+
+        public static Map<UUID, SimplePersonDTO> getCollection(){
+            return persons;
+        }
 }

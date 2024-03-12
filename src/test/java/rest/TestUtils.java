@@ -8,6 +8,8 @@ import jakarta.persistence.EntityManagerFactory;
 import jakarta.persistence.Persistence;
 
 import java.time.LocalDate;
+import java.util.HashMap;
+import java.util.Map;
 
 public class TestUtils {
     // method to create users and roles before each test
@@ -33,7 +35,8 @@ public class TestUtils {
             em.getTransaction().commit();
         }
     }
-    public void createPersonEntities(EntityManagerFactory emfTest){
+
+    public Map<String, IJPAEntity> createPersonEntities(EntityManagerFactory emfTest) {
         try (EntityManager em = emfTest.createEntityManager()) {
             em.getTransaction().begin();
             em.createQuery("DELETE FROM Phone").executeUpdate();
@@ -86,6 +89,21 @@ public class TestUtils {
             em.persist(h2);
             em.persist(h3);
             em.getTransaction().commit();
+            Map<String, IJPAEntity> entityMap = new HashMap<>();
+            return Map.of("Person1", p1 // MAX 10 entries this way (alternatively use Map.ofEntries(Map.entry("Person1", p1))
+                    , "Person2", p2
+                    , "Person3", p3
+                    , "address1", a1
+                    , "address2", a2
+                    , "address3", a3
+                    , "phone1", ph1
+                    , "phone2", ph2
+                    , "phone3", ph3
+                    , "hobby1", h1
+//                    , "hobby2", h2
+//                    , "hobby2", h2
+//                    , "hobby3", h3
+            );
         }
     }
 }
