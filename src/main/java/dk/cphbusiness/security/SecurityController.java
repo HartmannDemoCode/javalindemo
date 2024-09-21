@@ -9,7 +9,6 @@ import dk.cphbusiness.security.dtos.TokenDTO;
 import dk.cphbusiness.security.dtos.UserDTO;
 import dk.cphbusiness.security.exceptions.NotAuthorizedException;
 import dk.cphbusiness.security.exceptions.ValidationException;
-import dk.cphbusiness.utils.TokenUtils;
 import dk.cphbusiness.utils.Utils;
 import io.javalin.http.Handler;
 import io.javalin.http.HttpStatus;
@@ -94,16 +93,19 @@ public class SecurityController implements ISecurityController {
         // When ctx hits the endpoint it will have the user on the attribute to check for roles (ApplicationConfig -> accessManager)
         ObjectNode returnObject = objectMapper.createObjectNode();
         return (ctx) -> {
+            // This is a preflight request => OK
             if(ctx.method().toString().equals("OPTIONS")) {
                 ctx.status(200);
                 return;
             }
             String header = ctx.header("Authorization");
+            // If there is no token we do not allow entry
             if (header == null) {
                 ctx.status(HttpStatus.FORBIDDEN).json(returnObject.put("msg", "Authorization header missing"));
                 return;
             }
             String token = header.split(" ")[1];
+            // If the Authorization Header was malformed = no entry
             if (token == null) {
                 ctx.status(HttpStatus.FORBIDDEN).json(returnObject.put("msg", "Authorization header malformed"));
                 return;
@@ -166,24 +168,4 @@ public class SecurityController implements ISecurityController {
             throw new ApiException(HttpStatus.UNAUTHORIZED.getCode(), "Unauthorized. Could not verify token");
         }
     }
-
-    @Override
-    public String renewToken(String token, int minutesToExpire) throws NotAuthorizedException {
-        // if time to expire is less than `minutesToExpire` then renew token
-
-        boolean IS_DEPLOYED = (System.getenv("DEPLOYED") != null);
-        String SECRET = IS_DEPLOYED ? System.getenv("SECRET_KEY") : Utils.getPropertyValue("SECRET_KEY","config.properties");
-        int MILLISECONDS_TO_EXPIRE = minutesToExpire * 60 * 1000;
-
-        try {
-            if(tokenUtils.tokenIsValid(token, SECRET) && tokenUtils.tokenNotExpired(token)) {
-                return createToken(tokenUtils.getUserWithRolesFromToken(token));
-            } else {
-                throw new NotAuthorizedException(403, "Token is not valid");
-            }
-        } catch (ParseException | JOSEException e) {
-            throw new NotAuthorizedException(403, "Could not validate token");
-        }
-    }
-
 }

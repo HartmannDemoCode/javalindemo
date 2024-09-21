@@ -12,7 +12,7 @@
         <maven.compiler.source>17</maven.compiler.source>
         <maven.compiler.target>17</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <javalin.version>5.5.0</javalin.version>
+        <javalin.version>6.3.0</javalin.version>
         <jackson.version>2.15.0</jackson.version>
         <lombok.version>1.18.28</lombok.version>
         <hibernate.version>6.2.4.Final</hibernate.version>
@@ -38,11 +38,13 @@
             <artifactId>javalin-bundle</artifactId>
             <version>${javalin.version}</version>
         </dependency>
+
 <!--        <dependency>-->
 <!--            <groupId>com.google.code.gson</groupId>-->
 <!--            <artifactId>gson</artifactId>-->
 <!--            <version>2.10.1</version>-->
 <!--        </dependency>-->
+
         <!--        https://www.baeldung.com/jackson-->
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
@@ -61,11 +63,11 @@
             <artifactId>jte</artifactId>
             <version>3.1.0</version>
         </dependency>
-        <dependency>
-            <groupId>io.javalin</groupId>
-            <artifactId>javalin-rendering</artifactId>
-            <version>5.6.2</version>
-        </dependency>
+<!--        <dependency>-->
+<!--            <groupId>io.javalin</groupId>-->
+<!--            <artifactId>javalin-rendering</artifactId>-->
+<!--            <version>5.6.2</version>-->
+<!--        </dependency>-->
         <!--        DATABASE-->
         <!--        https://www.theserverside.com/blog/Coffee-Talk-Java-News-Stories-and-Opinions/The-JPA-and-Hibernate-CRUD-operations-example-->
         <dependency>

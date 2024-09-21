@@ -1,4 +1,4 @@
-package dk.cphbusiness.utils;
+package dk.cphbusiness.security;
 
 import com.nimbusds.jose.*;
 import com.nimbusds.jose.crypto.MACSigner;
@@ -19,7 +19,8 @@ import java.util.stream.Collectors;
  * Purpose: to handle tokens
  * Author: Thomas Hartmann
  */
-public class TokenUtils {
+public class TokenUtils  {
+
     public UserDTO getUserWithRolesFromToken(String token) throws ParseException {
         // Return a user with Set of roles as strings
         SignedJWT jwt = SignedJWT.parse(token);
@@ -36,14 +37,14 @@ public class TokenUtils {
         if (jwt.verify(new MACVerifier(secret)))
             return true;
         else
-            throw new NotAuthorizedException(403, "Token is not valid");
+            return false;
     }
 
     public boolean tokenNotExpired(String token) throws ParseException, NotAuthorizedException {
         if (timeToExpire(token) > 0)
             return true;
         else
-            throw new NotAuthorizedException(403, "Token has expired");
+            return false;
     }
     public int timeToExpire(String token) throws ParseException, NotAuthorizedException {
         SignedJWT jwt = SignedJWT.parse(token);

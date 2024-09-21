@@ -21,9 +21,9 @@ public class P07SecurityDemo {
                 .setRoutes(SecurityRoutes.getSecuredRoutes())
                 .startServer(7007)
                 .checkSecurityRoles()
-                .setGeneralExceptionHandling()
                 .setErrorHandling()
-                .setApiExceptionHandling();
+                .setApiExceptionHandling()
+                .setGeneralExceptionHandling();
 
     }
 }

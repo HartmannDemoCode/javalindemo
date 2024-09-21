@@ -1,6 +1,7 @@
 package dk.cphbusiness.persistence.daos;
 
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import dk.cphbusiness.persistence.model.*;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;

@@ -44,7 +44,7 @@ public class User implements Serializable, ISecurityUser{
         if (roles.isEmpty()) {
             return null;
         }
-        Set<String> rolesAsStrings = new LinkedHashSet<>();
+        Set<String> rolesAsStrings = new HashSet<>();
         roles.forEach((role) -> {
             rolesAsStrings.add(role.getRoleName());
         });

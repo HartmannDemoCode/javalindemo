@@ -35,7 +35,7 @@ public class P08All {
                         get("/",ctx->ctx.render("index.html"));
                     });
                 })
-            .startServer(7070)
+            .startServer(7007)
             .setCORS()
             .setGeneralExceptionHandling()
 //            .setErrorHandling()

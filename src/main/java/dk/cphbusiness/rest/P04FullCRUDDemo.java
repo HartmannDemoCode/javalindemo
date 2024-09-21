@@ -21,7 +21,7 @@ public class P04FullCRUDDemo {
                 .setRoutes(()->{
                     path("/test", () -> {
                         get("/", ctx->ctx.contentType("text/plain").result("Hello World"));
-                        get("/{id}", ctx->ctx.result("Hello World "+ctx.pathParam("id")));
+                        get("/{id}", ctx->ctx.contentType("text/plain").result("Hello World "+ctx.pathParam("id")));
 //                        post("/", ctx->ctx.result("Hello World "+ctx.body()));
 //                        put("/{id}", ctx->ctx.result("Url: "+ctx.fullUrl()+", Path parameter: "+ctx.pathParam("id")+", Body: "+ctx.body()));
 //                        delete("/{id}", ctx->ctx.result("Hello World "+ctx.pathParam("id")));

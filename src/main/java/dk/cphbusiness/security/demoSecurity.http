@@ -11,12 +11,12 @@ POST http://localhost:7007/api/auth/login
 
 {
     "username": "admin",
-    "password": "test123"
+    "password": "admin123"
 }
 ###
 GET http://localhost:7007/api/protected/user_demo
-Authorization: Bearer eyJhGciOiJIUzI1NiJ9.eyJpc3MiOiJUaG9tYXMgSGFydG1hbm4iLCJzdWIiOiJhZG1pbiIsImV4cCI6MTcwMTgwMjcxNCwicm9sZXMiOiJ1c2VyIiwidXNlcm5hbWUiOiJhZG1pbiJ9.Ugxj9rrveLHqnEeeRiGYH1zjOxJhd5-PLJe5Rma4LMY
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJUaG9tYXMgSGFydG1hbm4iLCJzdWIiOiJhZG1pbiIsImV4cCI6MTcxMDMzODg0Miwicm9sZXMiOiJhZG1pbiIsInVzZXJuYW1lIjoiYWRtaW4ifQ.XPbVAL4SXwnnbB6BjApIrPLzlQjQvR6uQ8THWRCxDmU
 ###
 GET http://localhost:7007/api/protected/admin_demo
-Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJUaG9tYXMgSGFydG1hbm4iLCJzdWIiOiJ0ZXN0IiwiZXhwIjoxNjk3MDQxNjQ4LCJyb2xlcyI6InVzZXIiLCJ1c2VybmFtZSI6InRlc3QifQ.8b7o0ADrpO11iBfIkyb9RHvgZBD6MXf8xoy9DIG_j6o
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJUaG9tYXMgSGFydG1hbm4iLCJzdWIiOiJhZG1pbiIsImV4cCI6MTcyNjc0MjQzMSwicm9sZXMiOiJhZG1pbiIsInVzZXJuYW1lIjoiYWRtaW4ifQ.fqrI424ZeAl0hHURlA7QTvrtcr4aQMjam2EPuRT2Syo
 ###

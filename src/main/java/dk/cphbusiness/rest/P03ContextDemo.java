@@ -15,15 +15,15 @@ public class P03ContextDemo {
     private static ContextDemoController cdc = new ContextDemoController();
     public static void main(String[] args) {
         Javalin app = Javalin.create(config-> { // create method takes a Consumer<JavalinConfig> as argument to configure the server
-            config.plugins.enableDevLogging();
+            config.bundledPlugins.enableDevLogging();
             config.http.defaultContentType = "application/json";
-            config.routing.contextPath = "/demoapp/api";
+            config.router.contextPath = "/demoapp/api";
+            config.router.apiBuilder(getRequestDemoRoutes());
+            config.router.apiBuilder(getResponseDemoRoutes());
             // For wednesday:
 //          config.plugins.register(new RouteOverviewPlugin("/routes")); // overview of all registered routes at /routes for api documentation
 //          config.accessManager(new AccessManager() { @Override public void manage(@NotNull Handler handler, @NotNull Context context, @NotNull Set<? extends RouteRole> set) throws Exception { throw new UnsupportedOperationException("Not implemented yet"); } });
         }).start(7007);
-        app.routes(getRequestDemoRoutes());
-        app.routes(getResponseDemoRoutes());
     }
     private static EndpointGroup getRequestDemoRoutes() {
         return () -> {

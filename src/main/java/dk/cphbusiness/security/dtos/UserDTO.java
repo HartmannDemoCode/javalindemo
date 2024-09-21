@@ -39,4 +39,11 @@ public class UserDTO {
     public void addRole(String role) {
         roles.add(role);
     }
+    public String getRolesAsString(){
+        StringBuilder sb = new StringBuilder();
+        for (String role : roles) {
+            sb.append(role).append(",");
+        }
+        return sb.toString().substring(0, sb.toString().length()-1);
+    }
 }
