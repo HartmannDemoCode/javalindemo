@@ -1,21 +1,15 @@
 package dk.cphbusiness.rest;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import dk.bugelhartmann.UserDTO;
 import dk.cphbusiness.exceptions.ApiException;
-import dk.cphbusiness.security.ISecurityController;
 import dk.cphbusiness.security.SecurityController;
-import dk.cphbusiness.security.dtos.UserDTO;
 import io.javalin.Javalin;
 import io.javalin.apibuilder.EndpointGroup;
 import io.javalin.config.JavalinConfig;
 import io.javalin.http.Context;
 import io.javalin.http.HttpStatus;
-import io.javalin.http.staticfiles.Location;
-import io.javalin.plugin.bundled.RouteOverviewPlugin;
-import io.javalin.security.RouteRole;
-import jakarta.persistence.EntityManagerFactory;
 
-import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 

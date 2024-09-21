@@ -1,12 +1,10 @@
-package dk.cphbusiness.security;
+package dk.cphbusiness.security.entities;
 
 import jakarta.persistence.*;
-import lombok.ToString;
 
 import java.io.Serial;
 import java.io.Serializable;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 /**

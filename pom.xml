@@ -22,7 +22,8 @@
         <restassured.version>5.3.0</restassured.version>
         <testcontainers.version>1.18.0</testcontainers.version>
 <!--        <logging.version>2.14.1</logging.version>-->
-        <jwt.version>9.0.1</jwt.version>
+<!--        <jwt.version>9.0.1</jwt.version>-->
+        <token.security.version>1.0.1</token.security.version>
         <jbcrypt.version>0.4</jbcrypt.version>
         <!-- DATABASE PROJECT NAME ON SERVER  -->
         <db.name>javalindemo</db.name>
@@ -89,10 +90,9 @@
             <version>${jbcrypt.version}</version>
         </dependency>
         <dependency>
-            <!--  https://nimbusds.com/products/nimbus-jose-jwt   -->
-            <groupId>com.nimbusds</groupId>
-            <artifactId>nimbus-jose-jwt</artifactId>
-            <version>${jwt.version}</version>
+            <groupId>dk.bugelhartmann</groupId>
+            <artifactId>token-security</artifactId>
+            <version>${token.security.version}</version>
         </dependency>
         <!--        TESTING       -->
         <!--        https://www.baeldung.com/junit-5-->
@@ -195,11 +195,11 @@
             <scope>provided</scope>
         </dependency>
         <!--  https://nimbusds.com/products/nimbus-jose-jwt   -->
-        <dependency>
-            <groupId>com.nimbusds</groupId>
-            <artifactId>nimbus-jose-jwt</artifactId>
-            <version>${jwt.version}</version>
-        </dependency>
+<!--        <dependency>-->
+<!--            <groupId>com.nimbusds</groupId>-->
+<!--            <artifactId>nimbus-jose-jwt</artifactId>-->
+<!--            <version>${jwt.version}</version>-->
+<!--        </dependency>-->
 
     </dependencies>
     <build>

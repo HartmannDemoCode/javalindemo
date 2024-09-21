@@ -1,6 +1,8 @@
 package dk.cphbusiness.security;
 
 import dk.cphbusiness.exceptions.ApiException;
+import dk.cphbusiness.security.entities.Role;
+import dk.cphbusiness.security.entities.User;
 import dk.cphbusiness.security.exceptions.ValidationException;
 import jakarta.persistence.*;
 
@@ -42,21 +44,6 @@ public class SecurityDAO implements ISecurityDAO {
     }
 
     @Override
-    public Role createRole(String role) {
-        try (EntityManager em = getEntityManager()) {
-            Role roleEntity = em.find(Role.class, role);
-            if (roleEntity != null)
-                return roleEntity;
-
-            roleEntity = new Role(role);
-            em.getTransaction().begin();
-            em.persist(roleEntity);
-            em.getTransaction().commit();
-            return roleEntity;
-        }
-    }
-
-    @Override
     public User createUser(String username, String password) {
         try (EntityManager em = getEntityManager()) {
             User userEntity = em.find(User.class, username);
@@ -77,62 +64,4 @@ public class SecurityDAO implements ISecurityDAO {
             throw new ApiException(400, e.getMessage());
         }
     }
-
-    @Override
-    public User getUser(String userName) {
-        try (EntityManager em = getEntityManager()) {
-            User user = em.createQuery("SELECT u FROM User u JOIN u.roles WHERE u.username = :username", User.class).setParameter("username", userName).getSingleResult();
-            if (user == null)
-                throw new EntityNotFoundException("No user found with username: " + userName);
-            user.getRoles().size();
-            return user;
-        }
-    }
-
-    @Override
-    public User addUserRole(String username, String role) {
-        try (EntityManager em = getEntityManager()) {
-            User user = em.find(User.class, username);
-            if (user == null)
-                throw new EntityNotFoundException("No user found with username: " + username);
-            Role roleEntity = em.find(Role.class, role);
-            if (roleEntity == null)
-                throw new EntityNotFoundException("No role found with name: " + role);
-            if (user.getRoles().contains(roleEntity))
-                return user;
-            em.getTransaction().begin();
-            user.getRoles().add(roleEntity);
-            em.getTransaction().commit();
-            return user;
-        }
-    }
-
-    @Override
-    public User removeUserRole(String username, String role) {
-        try (EntityManager em = getEntityManager()) {
-            User user = em.find(User.class, username);
-            if (user == null)
-                throw new EntityNotFoundException("No user found with username: " + username);
-            Role roleEntity = em.find(Role.class, role);
-            if (roleEntity == null)
-                throw new EntityNotFoundException("No role found with name: " + role);
-            if (!user.getRoles().contains(roleEntity))
-                return user;
-            em.getTransaction().begin();
-            user.getRoles().remove(roleEntity);
-            em.getTransaction().commit();
-            return user;
-        }
-    }
-
-    @Override
-    public boolean hasRole(String role, User userEntity) {
-        try (EntityManager em = getEntityManager()) {
-            Role roleEntity = em.find(Role.class, role);
-            if (roleEntity == null)
-                throw new EntityNotFoundException("No role found with name: " + role);
-            return userEntity.getRoles().contains(roleEntity);
-        }
-    }
-
 }

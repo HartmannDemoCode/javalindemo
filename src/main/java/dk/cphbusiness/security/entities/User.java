@@ -1,5 +1,6 @@
-package dk.cphbusiness.security;
+package dk.cphbusiness.security.entities;
 
+import dk.cphbusiness.security.ISecurityUser;
 import jakarta.persistence.*;
 import lombok.*;
 import org.mindrot.jbcrypt.BCrypt;
@@ -7,7 +8,6 @@ import org.mindrot.jbcrypt.BCrypt;
 import java.io.Serial;
 import java.io.Serializable;
 import java.util.HashSet;
-import java.util.LinkedHashSet;
 import java.util.Set;
 
 /**
@@ -22,7 +22,7 @@ import java.util.Set;
 @NoArgsConstructor
 @AllArgsConstructor
 @ToString
-public class User implements Serializable, ISecurityUser{
+public class User implements Serializable, ISecurityUser {
 
     @Serial
     private static final long serialVersionUID = 1L;

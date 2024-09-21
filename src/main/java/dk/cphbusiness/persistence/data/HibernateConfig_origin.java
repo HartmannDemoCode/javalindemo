@@ -1,8 +1,8 @@
 package dk.cphbusiness.persistence.data;
 
 import dk.cphbusiness.persistence.model.*;
-import dk.cphbusiness.security.Role;
-import dk.cphbusiness.security.User;
+import dk.cphbusiness.security.entities.Role;
+import dk.cphbusiness.security.entities.User;
 import dk.cphbusiness.utils.Utils;
 import jakarta.persistence.EntityManagerFactory;
 import org.hibernate.SessionFactory;

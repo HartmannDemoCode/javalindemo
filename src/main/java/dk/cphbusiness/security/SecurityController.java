@@ -3,10 +3,12 @@ package dk.cphbusiness.security;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.nimbusds.jose.*;
+import dk.bugelhartmann.ITokenSecurity;
+import dk.bugelhartmann.UserDTO;
 import dk.cphbusiness.persistence.HibernateConfig;
 import dk.cphbusiness.exceptions.ApiException;
 import dk.cphbusiness.security.dtos.TokenDTO;
-import dk.cphbusiness.security.dtos.UserDTO;
+import dk.cphbusiness.security.entities.User;
 import dk.cphbusiness.security.exceptions.NotAuthorizedException;
 import dk.cphbusiness.security.exceptions.ValidationException;
 import dk.cphbusiness.utils.Utils;
@@ -16,6 +18,7 @@ import jakarta.persistence.EntityExistsException;
 import jakarta.persistence.EntityNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import dk.bugelhartmann.TokenSecurity;
 
 import java.text.ParseException;
 import java.util.Set;
@@ -26,9 +29,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * Author: Thomas Hartmann
  */
 public class SecurityController implements ISecurityController {
-    TokenUtils tokenUtils = new TokenUtils();
     ObjectMapper objectMapper = new ObjectMapper();
-    private static final Logger logger = LoggerFactory.getLogger(SecurityController.class);
+    ITokenSecurity tokenSecurity = new TokenSecurity();
     private static ISecurityDAO securityDAO;
 
     private SecurityController() {
@@ -53,7 +55,7 @@ public class SecurityController implements ISecurityController {
                 System.out.println("USER IN LOGIN: " + user);
 
                 User verifiedUserEntity = securityDAO.getVerifiedUser(user.getUsername(), user.getPassword());
-                String token = createToken(new UserDTO(verifiedUserEntity));
+                String token = createToken(new UserDTO(verifiedUserEntity.getUsername(), Set.of("USER")));
                 ctx.status(200).json(new TokenDTO(token, user.getUsername()));
 
             } catch (EntityNotFoundException | ValidationException e) {
@@ -76,7 +78,7 @@ public class SecurityController implements ISecurityController {
                 UserDTO userInput = ctx.bodyAsClass(UserDTO.class);
                 User created = securityDAO.createUser(userInput.getUsername(), userInput.getPassword());
 
-                String token = createToken(new UserDTO(created));
+                String token = createToken(new UserDTO(created.getUsername(), Set.of("USER")));
                 ctx.status(HttpStatus.CREATED).json(new TokenDTO(token, userInput.getUsername()));
             } catch (EntityExistsException e) {
                 ctx.status(HttpStatus.UNPROCESSABLE_CONTENT);
@@ -94,7 +96,7 @@ public class SecurityController implements ISecurityController {
         ObjectNode returnObject = objectMapper.createObjectNode();
         return (ctx) -> {
             // This is a preflight request => OK
-            if(ctx.method().toString().equals("OPTIONS")) {
+            if (ctx.method().toString().equals("OPTIONS")) {
                 ctx.status(200);
                 return;
             }
@@ -136,30 +138,35 @@ public class SecurityController implements ISecurityController {
 
     @Override
     public String createToken(UserDTO user) {
-        String ISSUER;
-        String TOKEN_EXPIRE_TIME;
-        String SECRET_KEY;
+        try {
+            String ISSUER;
+            String TOKEN_EXPIRE_TIME;
+            String SECRET_KEY;
 
-        if (System.getenv("DEPLOYED") != null) {
-            ISSUER = System.getenv("ISSUER");
-            TOKEN_EXPIRE_TIME = System.getenv("TOKEN_EXPIRE_TIME");
-            SECRET_KEY = System.getenv("SECRET_KEY");
-        } else {
-            ISSUER = "Thomas Hartmann";
-            TOKEN_EXPIRE_TIME = "1800000";
-            SECRET_KEY = Utils.getPropertyValue("SECRET_KEY","config.properties");
+            if (System.getenv("DEPLOYED") != null) {
+                ISSUER = System.getenv("ISSUER");
+                TOKEN_EXPIRE_TIME = System.getenv("TOKEN_EXPIRE_TIME");
+                SECRET_KEY = System.getenv("SECRET_KEY");
+            } else {
+                ISSUER = "Thomas Hartmann";
+                TOKEN_EXPIRE_TIME = "1800000";
+                SECRET_KEY = Utils.getPropertyValue("SECRET_KEY", "config.properties");
+            }
+            return tokenSecurity.createToken(user, ISSUER, TOKEN_EXPIRE_TIME, SECRET_KEY);
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new ApiException(500, "Could not create token");
         }
-        return tokenUtils.createToken(user, ISSUER, TOKEN_EXPIRE_TIME, SECRET_KEY);
     }
 
     @Override
     public UserDTO verifyToken(String token) {
         boolean IS_DEPLOYED = (System.getenv("DEPLOYED") != null);
-        String SECRET = IS_DEPLOYED ? System.getenv("SECRET_KEY") : Utils.getPropertyValue("SECRET_KEY","config.properties");
+        String SECRET = IS_DEPLOYED ? System.getenv("SECRET_KEY") : Utils.getPropertyValue("SECRET_KEY", "config.properties");
 
         try {
-            if (tokenUtils.tokenIsValid(token, SECRET) && tokenUtils.tokenNotExpired(token)) {
-                return tokenUtils.getUserWithRolesFromToken(token);
+            if (tokenSecurity.tokenIsValid(token, SECRET) && tokenSecurity.tokenNotExpired(token)) {
+                return tokenSecurity.getUserWithRolesFromToken(token);
             } else {
                 throw new NotAuthorizedException(403, "Token is not valid");
             }
