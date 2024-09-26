@@ -65,6 +65,12 @@
       </plugin>
     </plugins>
   </build>
+  <repositories>
+    <repository>
+      <id>jitpack.io</id>
+      <url>https://jitpack.io</url>
+    </repository>
+  </repositories>
   <dependencies>
     <dependency>
       <groupId>org.junit.jupiter</groupId>
@@ -111,7 +117,7 @@
     <dependency>
       <groupId>io.rest-assured</groupId>
       <artifactId>rest-assured</artifactId>
-      <version>5.3.0</version>
+      <version>5.5.0</version>
       <scope>test</scope>
       <exclusions>
         <exclusion>
@@ -151,12 +157,16 @@
     <dependency>
       <groupId>io.rest-assured</groupId>
       <artifactId>json-schema-validator</artifactId>
-      <version>5.3.0</version>
+      <version>5.5.0</version>
       <scope>test</scope>
       <exclusions>
         <exclusion>
           <artifactId>json-schema-validator</artifactId>
           <groupId>com.github.java-json-tools</groupId>
+        </exclusion>
+        <exclusion>
+          <artifactId>guava</artifactId>
+          <groupId>com.google.guava</groupId>
         </exclusion>
         <exclusion>
           <artifactId>hamcrest</artifactId>
@@ -214,17 +224,17 @@
   <properties>
     <jackson.version>2.15.0</jackson.version>
     <hamcrest.version>2.0.0.0</hamcrest.version>
-    <restassured.version>5.3.0</restassured.version>
+    <restassured.version>5.5.0</restassured.version>
     <jbcrypt.version>0.4</jbcrypt.version>
+    <token.security.version>1.0.1</token.security.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <junit.version>5.9.1</junit.version>
-    <javalin.version>5.5.0</javalin.version>
+    <javalin.version>6.3.0</javalin.version>
     <db.name>javalindemo</db.name>
     <hibernate.version>6.2.4.Final</hibernate.version>
     <maven.compiler.source>17</maven.compiler.source>
     <lombok.version>1.18.28</lombok.version>
     <maven.compiler.target>17</maven.compiler.target>
-    <jwt.version>9.0.1</jwt.version>
     <testcontainers.version>1.18.0</testcontainers.version>
     <postgresql.version>42.6.0</postgresql.version>
     <javalin.port>7070</javalin.port>

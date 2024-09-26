@@ -92,7 +92,7 @@ public class Populator {
             em.persist(h3);
             em.getTransaction().commit();
 
-            System.out.println("Persons in test DB: ");
+            System.out.println("Persons in DB: ");
             em.createQuery("SELECT p FROM Person p", Person.class).getResultList().forEach(System.out::println);
         }
     }

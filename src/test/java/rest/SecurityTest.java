@@ -2,7 +2,10 @@ package rest;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import dk.cphbusiness.dtos.PersonDTO;
 import dk.cphbusiness.persistence.HibernateConfig;
+import dk.cphbusiness.persistence.model.IJPAEntity;
+import dk.cphbusiness.persistence.model.Person;
 import dk.cphbusiness.rest.ApplicationConfig;
 import dk.cphbusiness.rest.RestRoutes;
 import dk.cphbusiness.security.SecurityRoutes;
@@ -17,6 +20,7 @@ import org.junit.jupiter.api.*;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 import static io.restassured.RestAssured.given;
 import static junit.framework.Assert.assertEquals;
@@ -30,11 +34,11 @@ public class SecurityTest {
     private static ApplicationConfig appConfig;
     private static EntityManagerFactory emfTest;
     private static ObjectMapper jsonMapper = new ObjectMapper();
-
+    Map<String, IJPAEntity> populated;
 
     @BeforeAll
     static void setUpAll() {
-        RestAssured.baseURI = "http://localhost:7777";
+        RestAssured.baseURI = "http://localhost:7777/api";
 
         HibernateConfig.setTestMode(true); // IMPORTANT leave this at the very top of this method in order to use the test database
         RestRoutes restRoutes = new RestRoutes();
@@ -61,19 +65,20 @@ public class SecurityTest {
 
     @AfterAll
     static void afterAll() {
-        appConfig.stopServer();
         HibernateConfig.setTestMode(false);
+        appConfig.stopServer();
     }
 
     @BeforeEach
     void setUpEach() {
         // Setup test database for each test
         new TestUtils().createUsersAndRoles(emfTest);
-        // Setup DB Persons and Addresses
-        new TestUtils().createPersonEntities(emfTest);
+        // Setup DB Poems
+        populated = new TestUtils().createPersonEntities(emfTest);
     }
 
     @Test
+    @DisplayName("Test if server is up")
     public void testServerIsUp() {
         System.out.println("Testing is server UP");
         given().when().get("/open/person").then().statusCode(200);
@@ -94,6 +99,7 @@ public class SecurityTest {
                 .extract().path("token");
         System.out.println("TOKEN ---> " + securityToken);
     }
+
     @Test
     @DisplayName("Test login for user")
     public void testRestForUser() {
@@ -119,7 +125,7 @@ public class SecurityTest {
                 .when()
                 .get("/protected/admin_demo").then()
                 .statusCode(403)
-                .body("msg", equalTo("Unauthorized with roles: [ADMIN]"));
+                .body("msg", equalTo("Unauthorized with roles: [user]. Needed roles are: [ADMIN]"));
     }
 
     @Test
@@ -176,73 +182,78 @@ public class SecurityTest {
                 .statusCode(403); // Forbidden
     }
     @Test
+    @DisplayName("Test Log request details")
     public void testLogRequest() {
         System.out.println("Testing logging request details");
         given()
                 .log().all()
-                .when().get("/parent")
+                .when().get("/open/person")
                 .then().statusCode(200);
     }
 
     @Test
+    @DisplayName("Test Log response details")
     public void testLogResponse() {
         System.out.println("Testing logging response details");
         given()
-                .when().get("/parent")
+                .when().get("/open/person")
                 .then().log().body().statusCode(200);
     }
 
-//    @Test
-//    public void testGetById()  {
-//        given()
-//                .contentType(ContentType.JSON)
-////                .pathParam("id", p1.getId()).when()
-//                .get("/parent/{id}",p1.getId())
-//                .then()
-//                .assertThat()
-//                .statusCode(HttpStatus.OK_200.getStatusCode())
-//                .body("id", equalTo(p1.getId()))
-//                .body("name", equalTo(p1.getName()))
-//                .body("children", hasItems(hasEntry("name","Joseph"),hasEntry("name","Alberta")));
-//    }
-//
-//    @Test
-//    public void testError() {
-//        given()
-//                .contentType(ContentType.JSON)
-////                .pathParam("id", p1.getId()).when()
-//                .get("/parent/{id}",999999999)
-//                .then()
-//                .assertThat()
-//                .statusCode(HttpStatus.NOT_FOUND_404.getStatusCode())
-//                .body("code", equalTo(404))
-//                .body("message", equalTo("The Parent entity with ID: 999999999 Was not found"));
-//    }
-//
-//    @Test
-//    public void testPrintResponse(){
-//        Response response = given().when().get("/parent/"+p1.getId());
-//        ResponseBody body = response.getBody();
-//        System.out.println(body.prettyPrint());
-//
-//        response
-//                .then()
-//                .assertThat()
-//                .body("name",equalTo("Henrik"));
-//    }
-//
-//    @Test
-//    public void exampleJsonPathTest() {
-//        Response res = given().get("/parent/"+p1.getId());
-//        assertEquals(200, res.getStatusCode());
-//        String json = res.asString();
-//        JsonPath jsonPath = new JsonPath(json);
-//        assertEquals("Henrik", jsonPath.get("name"));
-//    }
-//
+    @Test
+    @DisplayName("Test getting person by id using some hamcrest matchers")
+    public void testGetById()  {
+        given()
+                .contentType(ContentType.JSON)
+//                .pathParam("id", p1.getId()).when()
+                .get("/person/{id}", populated.get("Person1").getId())
+                .then()
+                .assertThat()
+                .statusCode(HttpStatus.OK_200)
+                .body("id", equalTo(populated.get("Person1").getId().toString()))
+                .body("firstName", equalTo(((Person)populated.get("Person1")).getFirstName()))
+                .body("phones", hasItems(hasEntry("number","12345678"),hasEntry("description","Hans' telefon")));
+    }
+
+    @Test
+    @DisplayName("Test getting a person by id that does not exist")
+    public void testError() {
+        given()
+                .contentType(ContentType.JSON)
+//                .pathParam("id", p1.getId()).when()
+                .get("/person/{id}",999999999)
+                .then()
+                .assertThat()
+                .statusCode(HttpStatus.NOT_FOUND_404)
+                .body("msg", equalTo("No person with that id"));
+    }
+
+    @Test
+    @DisplayName("Test printing out the response body")
+    public void testPrintResponse(){
+        Response response = given().when().get("/person/"+populated.get("Person1").getId());
+        ResponseBody body = response.getBody();
+        System.out.println(body.prettyPrint());
+
+        response
+                .then()
+                .assertThat()
+                .body("lastName",equalTo("Hansen"));
+    }
+
+    @Test
+    @DisplayName("Testing by extracting the response body as json with restassured JsonPath")
+    public void exampleJsonPathTest() {
+        Response res = given().get("/person/"+populated.get("Person1").getId());
+        assertEquals(200, res.getStatusCode());
+        String json = res.asString();
+        JsonPath jsonPath = new JsonPath(json);
+        assertEquals("hans@gmail.com", jsonPath.get("email"));
+    }
+
 //    @Test
 //    public void getAllParents() throws Exception {
-//        List<ParentDTO> parentDTOs;
+//        List<PersonDTO> parentDTOs;
 //
 //        parentDTOs = given()
 //                .contentType("application/json")
@@ -252,35 +263,14 @@ public class SecurityTest {
 //                .extract()
 //                .body()
 //                .jsonPath()
-//                .getList("", ParentDTO.class);
+//                .getList("", PersonDTO.class);
 //
-//        ParentDTO p1DTO = new ParentDTO(p1);
-//        ParentDTO p2DTO = new ParentDTO(p2);
+//        PersonDTO p1DTO = new PersonDTO(p1);
+//        PersonDTO p2DTO = new PersonDTO(p2);
 //        assertThat(parentDTOs, containsInAnyOrder(p1DTO, p2DTO));
 //
 //    }
 //
-//
-//    @Test
-//    public void postTest() {
-//        Parent p = new Parent("Helge",45);
-//        p.addChild(new Child("Josephine",3));
-//        ParentDTO pdto = new ParentDTO(p);
-//        String requestBody = GSON.toJson(pdto);
-//
-//        given()
-//                .header("Content-type", ContentType.JSON)
-//                .and()
-//                .body(requestBody)
-//                .when()
-//                .post("/parent")
-//                .then()
-//                .assertThat()
-//                .statusCode(200)
-//                .body("id", notNullValue())
-//                .body("name", equalTo("Helge"))
-//                .body("children", hasItems(hasEntry("name","Josephine")));
-//    }
 //
 //    @Test
 //    public void updateTest() {
@@ -351,27 +341,31 @@ public class SecurityTest {
 //        );
 //        assertThat(parents.toArray(), arrayContainingInAnyOrder(parents.get(0),parents.get(1)));
 //    }
-//    @Test
-//    public void testNumeric() {
-//        System.out.println("Test numeric values");
-//        assertThat(1.2, closeTo(1, 0.5));
-//        assertThat(5, greaterThanOrEqualTo(5));
-//
-//        List<Integer> list = Arrays.asList(1, 2, 3);
-//        int baseCase = 0;
-//        assertThat(list, everyItem(greaterThan(baseCase)));
-//    }
-//    @Test
-//    public void testMoreReadable() {
-//        System.out.println("Use the IS, NOT etc keywords for readability");
-//        String str1 = "text";
-//        String str2 = "texts";
-//        String str3 = "texts";
-//        String str4 = "These are several texts in one sentence";
-//        assertThat(str1, not(str2));
-//        assertThat(str2, is(str3));
-//        assertThat(str4, containsString(str2));
-//    }
-//
+
+    @Test
+    @DisplayName("Test using some more hamcrest matchers, just for fun")
+    public void testNumeric() {
+        System.out.println("Test numeric values");
+        assertThat(1.2, closeTo(1, 0.5));
+        assertThat(5, greaterThanOrEqualTo(5));
+
+        List<Integer> list = Arrays.asList(1, 2, 3);
+        int baseCase = 0;
+        assertThat(list, everyItem(greaterThan(baseCase)));
+    }
+
+    @Test
+    @DisplayName("Test using some more hamcrest matchers, like IS, NOT etc")
+    public void testMoreReadable() {
+        System.out.println("Use the IS, NOT etc keywords for readability");
+        String str1 = "text";
+        String str2 = "texts";
+        String str3 = "texts";
+        String str4 = "These are several texts in one sentence";
+        assertThat(str1, not(str2));
+        assertThat(str2, is(str3));
+        assertThat(str4, containsString(str2));
+    }
+
 
 }

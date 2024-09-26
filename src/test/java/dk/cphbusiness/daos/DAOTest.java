@@ -1,18 +1,25 @@
 package dk.cphbusiness.daos;
 
+import dk.bugelhartmann.UserDTO;
 import dk.cphbusiness.persistence.daos.ConnectorDAO;
 import dk.cphbusiness.persistence.daos.DAO;
-import dk.cphbusiness.persistence.model.Address;
-import dk.cphbusiness.persistence.model.Hobby;
-import dk.cphbusiness.persistence.model.Person;
-import dk.cphbusiness.persistence.model.Zip;
+import dk.cphbusiness.persistence.model.*;
+import dk.cphbusiness.security.ISecurityController;
+import dk.cphbusiness.security.ISecurityDAO;
+import dk.cphbusiness.security.SecurityController;
+import dk.cphbusiness.security.SecurityDAO;
+import dk.cphbusiness.security.entities.Role;
+import dk.cphbusiness.security.entities.User;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
 import dk.cphbusiness.persistence.HibernateConfig;
+import lombok.SneakyThrows;
 import org.hibernate.boot.jaxb.internal.stax.HbmEventReader;
 import org.junit.jupiter.api.*;
+import rest.TestUtils;
 
 import java.time.LocalDate;
+import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -25,9 +32,15 @@ class DAOTest {
     private static ConnectorDAO<Person,Address> personAddressConnectorDAO;
     private static ConnectorDAO<Address,Zip> addressZipConnectorDAO;
     private static ConnectorDAO<Person,Hobby> personHobbyConnectorDAO;
+    private static ISecurityDAO securityDAO;
+    private static ISecurityController securityController;
 
     Person p1, p2, p3;
     Address a1, a2, a3;
+    Phone ph1, ph2;
+    Hobby h1;
+    User user, admin, superUser = null;
+
 
     @BeforeAll
     static void setUpAll() {
@@ -37,9 +50,11 @@ class DAOTest {
         addressDao = new DAO<>(Address.class, emf);
         hobbyDAO = new DAO<>(Hobby.class, emf);
         zipDao = new DAO<>(Zip.class, emf);
+        securityDAO = new SecurityDAO(emf);
         personAddressConnectorDAO = new ConnectorDAO<>(Person.class, Address.class, emf);
         addressZipConnectorDAO = new ConnectorDAO<>(Address.class, Zip.class, emf);
         personHobbyConnectorDAO = new ConnectorDAO<>(Person.class, Hobby.class, emf);
+        securityController = SecurityController.getInstance();
     }
 
     @AfterAll
@@ -49,31 +64,20 @@ class DAOTest {
 
     @BeforeEach
     void setUp() {
-        EntityManager em = emf.createEntityManager();
-        p1 = new Person("Hans", "Hansen", "hans@mail.com", LocalDate.now());
-        p2 = new Person("Jette", "Hansen", "jette@mail.com", LocalDate.now());
-        p3 = new Person("Freya", "Hansen", "freya@mail.com", LocalDate.now());
-        Zip z1 = new Zip("2750", "Ballerup");
-        Zip z2 = new Zip("3050", "Humlebæk");
-        a1 = new Address("Hansvej 111",z1);
-        a2 = new Address("Fjellvej 232",z2);
-        p1.setAddress(a1);
-        p2.setAddress(a2);
-        p3.setAddress(a2);
-        em.getTransaction().begin();
-        em.createQuery("DELETE FROM Phone").executeUpdate();
-        em.createQuery("DELETE FROM Person").executeUpdate();
-        em.createQuery("DELETE FROM Address").executeUpdate();
-        em.createQuery("DELETE FROM Zip").executeUpdate();
-        em.createQuery("DELETE FROM Hobby").executeUpdate();
-        em.persist(p1);
-        em.persist(p2);
-        em.persist(p3);
-        em.persist(z1);
-        em.persist(z2);
-        em.persist(a1);
-        em.persist(a2);
-        em.getTransaction().commit();
+        TestUtils utils = new TestUtils();
+        // Create 3 users and 2 roles: user, admin and super and user and admin roles
+        utils.createUsersAndRoles(emf);
+        // Populate the persons with addresses, Phone and Hobbies
+        Map<String, IJPAEntity> populated = utils.createPersonEntities(emf);
+        p1 = (Person) populated.get("Person1");
+        p2 = (Person) populated.get("Person2");
+        p3 = (Person) populated.get("Person3");
+        a1 = (Address) populated.get("Address1");
+        a2 = (Address) populated.get("Address2");
+        a3 = (Address) populated.get("Address3");
+        ph1 = (Phone) populated.get("Phone1");
+        ph2 = (Phone) populated.get("Phone2");
+        h1 = (Hobby) populated.get("Hobby1");
     }
 
     @AfterEach
@@ -154,5 +158,15 @@ class DAOTest {
         person = personDao.findById(p1.getId());
         assert person.getAddress() == null;
     }
+    @SneakyThrows
+    @Test
+    @DisplayName("Test that we can create a token")
+    void createToken() {
+        UserDTO verified = securityDAO.getVerifiedUser("user", "user123");
+        var token = securityController.createToken(verified);
+        System.out.println("TOKEN: "+token);
+        assert token != null;
+    }
+
 
 }

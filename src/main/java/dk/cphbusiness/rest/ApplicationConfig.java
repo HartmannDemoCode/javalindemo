@@ -83,11 +83,14 @@ public class ApplicationConfig {
 
     // Adding below methods to ApplicationConfig, means that EVERY ROUTE will be checked for security roles. So open routes must have a role of ANYONE
     public ApplicationConfig checkSecurityRoles() {
-        app.beforeMatched(ctx -> {
+        app.beforeMatched(ctx -> { // Before matched is different from before, in that it is not called for 404 etc.
             if (ctx.routeRoles().isEmpty())
                 return;
             // 1. Get permitted roles
             Set<String> allowedRoles = ctx.routeRoles().stream().map(role -> role.toString().toUpperCase()).collect(Collectors.toSet());
+            if (allowedRoles.contains("ANYONE")) {
+                return;
+            }
             // 2. Get user roles
             UserDTO user = ctx.attribute("user");
 
@@ -97,20 +100,19 @@ public class ApplicationConfig {
                         .json(jsonMapper.createObjectNode()
                                 .put("msg", "Not authorized. No username were added from the token"));
 
-            if (!allowedRoles.contains("ANYONE")) {
-                if (!SecurityController.getInstance().authorize(user, allowedRoles)) {
-                    // throw new UnAuthorizedResponse(); // version 6 migration guide
-                    throw new ApiException(HttpStatus.FORBIDDEN.getCode(), "Unauthorized with roles: " + allowedRoles);
-                }
+            if (!SecurityController.getInstance().authorize(user, allowedRoles)) {
+                System.out.println("USER: " + user + " is not authorized. Needed roles are: " + allowedRoles);
+                // throw new UnAuthorizedResponse(); // version 6 migration guide
+                throw new ApiException(HttpStatus.FORBIDDEN.getCode(), "Unauthorized with roles: " + user.getRoles() + ". Needed roles are: " + allowedRoles);
             }
         });
 
 
-                // Check roles on the user (ctx.attribute("username") and compare with permittedRoles using securityController.authorize()
+        // Check roles on the user (ctx.attribute("username") and compare with permittedRoles using securityController.authorize()
 //        app.updateConfig(config -> {
 
 //            config.accessManager((handler, ctx, permittedRoles) -> {
-                // permitted roles are defined in the last arg to routes: get("/", ctx -> ctx.result("Hello World"), Role.ANYONE);
+        // permitted roles are defined in the last arg to routes: get("/", ctx -> ctx.result("Hello World"), Role.ANYONE);
 
 //                Set<String> allowedRoles = permittedRoles.stream().map(role -> role.toString().toUpperCase()).collect(Collectors.toSet());
 //                if (allowedRoles.contains("ANYONE") || ctx.method().toString().equals("OPTIONS")) {
@@ -132,70 +134,70 @@ public class ApplicationConfig {
 //                    throw new ApiException(HttpStatus.FORBIDDEN.getCode(), "Unauthorized with roles: " + allowedRoles);
 //            });
 //        });
-                return appConfig;
-            }
+        return appConfig;
+    }
 
 
-            public ApplicationConfig startServer ( int port){
-                app.start(port);
+    public ApplicationConfig startServer(int port) {
+        app.start(port);
 
-                return appConfig;
-            }
+        return appConfig;
+    }
 
-            public ApplicationConfig stopServer () {
-                app.stop();
-                return appConfig;
-            }
+    public ApplicationConfig stopServer() {
+        app.stop();
+        return appConfig;
+    }
 //    public static int getPort() {
 //        return Integer.parseInt(Utils.getPomProp("javalin.port"));
 //    }
 
-            public ApplicationConfig setErrorHandling () {
-                // To use this one, just set ctx.status(404) in the controller and add a ctx.attribute("msg", "Your message") to the ctx
-                // Look at the PersonController: delete() method for an example
-                // Might be better to just use the setApiExceptionHandling method below
-                app.error(404, ctx -> {
-                    String message = ctx.attribute("msg");
-                    message = "{\"msg\": \"" + message + "\"}";
-                    ctx.json(message);
-                });
-                return appConfig;
-            }
+    public ApplicationConfig setErrorHandling() {
+        // To use this one, just set ctx.status(404) in the controller and add a ctx.attribute("msg", "Your message") to the ctx
+        // Look at the PersonController: delete() method for an example
+        // Might be better to just use the setApiExceptionHandling method below
+        app.error(404, ctx -> {
+            String message = ctx.attribute("msg");
+            message = "{\"msg\": \"" + message + "\"}";
+            ctx.json(message);
+        });
+        return appConfig;
+    }
 
-            public ApplicationConfig setApiExceptionHandling () {
-                // Might be overruled by the setErrorHandling method
-                app.exception(ApiException.class, (e, ctx) -> {
-                    int statusCode = e.getStatusCode();
-                    System.out.println("Status code: " + statusCode + ", Message: " + e.getMessage());
-                    var on = jsonMapper
-                            .createObjectNode()
-                            .put("status", statusCode)
-                            .put("msg", e.getMessage());
-                    ctx.json(on);
-                    ctx.status(statusCode);
-                });
-                return appConfig;
-            }
+    public ApplicationConfig setApiExceptionHandling() {
+        // Might be overruled by the setErrorHandling method
+        app.exception(ApiException.class, (e, ctx) -> {
+            int statusCode = e.getStatusCode();
+            System.out.println("Status code: " + statusCode + ", Message: " + e.getMessage());
+            var on = jsonMapper
+                    .createObjectNode()
+                    .put("status", statusCode)
+                    .put("msg", e.getMessage());
+            ctx.json(on);
+            ctx.status(statusCode);
+        });
+        return appConfig;
+    }
 
-            public ApplicationConfig setGeneralExceptionHandling () {
-                app.exception(Exception.class, (e, ctx) -> {
-                    e.printStackTrace();
-                    ctx.result(e.getMessage());
-                });
-                return appConfig;
-            }
+    public ApplicationConfig setGeneralExceptionHandling() {
+        app.exception(Exception.class, (e, ctx) -> {
+            e.printStackTrace();
+            ctx.result(e.getMessage());
+        });
+        return appConfig;
+    }
 
-            //    public ApplicationConfig setStaticFiles(String dirPath){
+    //    public ApplicationConfig setStaticFiles(String dirPath){
 //        app.updateConfig(config -> {
 //            config.staticFiles.add("/public", Location.EXTERNAL);
 //        });
 //        return appConfig;
 //    }
-            public ApplicationConfig beforeFilter () {
-                app.before(ctx -> {
-                    String pathInfo = ctx.req().getPathInfo();
-                    ctx.req().getHeaderNames().asIterator().forEachRemaining(el -> System.out.println(el));
-                });
-                return appConfig;
-            }
-        }
+    public ApplicationConfig beforeFilter() {
+        app.before(ctx -> {
+            String pathInfo = ctx.req().getPathInfo();
+            ctx.req().getHeaderNames().asIterator().forEachRemaining(el -> System.out.println(el));
+        });
+        return appConfig;
+    }
+}

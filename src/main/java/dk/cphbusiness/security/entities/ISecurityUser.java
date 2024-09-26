@@ -1,6 +1,4 @@
-package dk.cphbusiness.security;
-
-import dk.cphbusiness.security.entities.Role;
+package dk.cphbusiness.security.entities;
 
 /**
  * Purpose: to set methods for handling security with the user

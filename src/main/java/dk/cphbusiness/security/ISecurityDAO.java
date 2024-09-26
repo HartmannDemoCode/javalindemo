@@ -1,4 +1,5 @@
 package dk.cphbusiness.security;
+import dk.bugelhartmann.UserDTO;
 import dk.cphbusiness.security.entities.User;
 import dk.cphbusiness.security.exceptions.ValidationException;
 
@@ -7,6 +8,6 @@ import dk.cphbusiness.security.exceptions.ValidationException;
  * Author: Thomas Hartmann
  */
 public interface ISecurityDAO {
-    User getVerifiedUser(String username, String password) throws ValidationException;
+    UserDTO getVerifiedUser(String username, String password) throws ValidationException;
     User createUser(String username, String password);
 }

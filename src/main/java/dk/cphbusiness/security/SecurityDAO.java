@@ -1,5 +1,6 @@
 package dk.cphbusiness.security;
 
+import dk.bugelhartmann.UserDTO;
 import dk.cphbusiness.exceptions.ApiException;
 import dk.cphbusiness.security.entities.Role;
 import dk.cphbusiness.security.entities.User;
@@ -7,6 +8,7 @@ import dk.cphbusiness.security.exceptions.ValidationException;
 import jakarta.persistence.*;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 
 /**
@@ -27,19 +29,15 @@ public class SecurityDAO implements ISecurityDAO {
     }
 
     @Override
-    public User getVerifiedUser(String username, String password) throws ValidationException {
+    public UserDTO getVerifiedUser(String username, String password) throws ValidationException {
         try (EntityManager em = getEntityManager()) {
-            System.out.println("USERNAME INSIDE GET_VERIFIED_USER: " + username + " PASSWORD: " + password);
-            List<User> users = em.createQuery("SELECT u FROM User u").getResultList();
-            System.out.println("SIZE OF USERS: " + users.size());
-            users.stream().forEach(user -> System.out.println(user.getUsername() + " " + user.getPassword()));
             User user = em.find(User.class, username);
             if (user == null)
                 throw new EntityNotFoundException("No user found with username: " + username); //RuntimeException
             user.getRoles().size(); // force roles to be fetched from db
             if (!user.verifyPassword(password))
                 throw new ValidationException("Wrong password");
-            return user;
+            return new UserDTO(user.getUsername(), user.getRoles().stream().map(r -> r.getRoleName()).collect(Collectors.toSet()));
         }
     }
 

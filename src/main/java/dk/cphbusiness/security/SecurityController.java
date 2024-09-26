@@ -2,12 +2,9 @@ package dk.cphbusiness.security;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.nimbusds.jose.*;
-import dk.bugelhartmann.ITokenSecurity;
-import dk.bugelhartmann.UserDTO;
+import dk.bugelhartmann.*;
 import dk.cphbusiness.persistence.HibernateConfig;
 import dk.cphbusiness.exceptions.ApiException;
-import dk.cphbusiness.security.dtos.TokenDTO;
 import dk.cphbusiness.security.entities.User;
 import dk.cphbusiness.security.exceptions.NotAuthorizedException;
 import dk.cphbusiness.security.exceptions.ValidationException;
@@ -16,9 +13,6 @@ import io.javalin.http.Handler;
 import io.javalin.http.HttpStatus;
 import jakarta.persistence.EntityExistsException;
 import jakarta.persistence.EntityNotFoundException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import dk.bugelhartmann.TokenSecurity;
 
 import java.text.ParseException;
 import java.util.Set;
@@ -32,11 +26,10 @@ public class SecurityController implements ISecurityController {
     ObjectMapper objectMapper = new ObjectMapper();
     ITokenSecurity tokenSecurity = new TokenSecurity();
     private static ISecurityDAO securityDAO;
-
-    private SecurityController() {
-    }
-
     private static SecurityController instance;
+
+    private SecurityController() { }
+
 
     public static SecurityController getInstance() { // Singleton because we don't want multiple instances of the same class
         if (instance == null) {
@@ -52,11 +45,12 @@ public class SecurityController implements ISecurityController {
             ObjectNode returnObject = objectMapper.createObjectNode(); // for sending json messages back to the client
             try {
                 UserDTO user = ctx.bodyAsClass(UserDTO.class);
-                System.out.println("USER IN LOGIN: " + user);
+                UserDTO verifiedUser = securityDAO.getVerifiedUser(user.getUsername(), user.getPassword());
+                String token = createToken(verifiedUser);
 
-                User verifiedUserEntity = securityDAO.getVerifiedUser(user.getUsername(), user.getPassword());
-                String token = createToken(new UserDTO(verifiedUserEntity.getUsername(), Set.of("USER")));
-                ctx.status(200).json(new TokenDTO(token, user.getUsername()));
+                ctx.status(200).json(returnObject
+                        .put("token", token)
+                        .put("username", verifiedUser.getUsername()));
 
             } catch (EntityNotFoundException | ValidationException e) {
                 ctx.status(401);
@@ -79,7 +73,9 @@ public class SecurityController implements ISecurityController {
                 User created = securityDAO.createUser(userInput.getUsername(), userInput.getPassword());
 
                 String token = createToken(new UserDTO(created.getUsername(), Set.of("USER")));
-                ctx.status(HttpStatus.CREATED).json(new TokenDTO(token, userInput.getUsername()));
+                ctx.status(HttpStatus.CREATED).json(returnObject
+                        .put("token", token)
+                        .put("username", created.getUsername()));
             } catch (EntityExistsException e) {
                 ctx.status(HttpStatus.UNPROCESSABLE_CONTENT);
                 ctx.json(returnObject.put("msg", "User already exists"));
@@ -89,10 +85,7 @@ public class SecurityController implements ISecurityController {
 
     @Override
     public Handler authenticate() {
-        // To check the users roles against the allowed roles for the endpoint (managed by javalins accessManager)
-        // Checked in 'before filter' -> Check for Authorization header to find token.
-        // Find user inside the token, forward the ctx object with userDTO on attribute
-        // When ctx hits the endpoint it will have the user on the attribute to check for roles (ApplicationConfig -> accessManager)
+
         ObjectNode returnObject = objectMapper.createObjectNode();
         return (ctx) -> {
             // This is a preflight request => OK
@@ -117,7 +110,7 @@ public class SecurityController implements ISecurityController {
                 ctx.status(HttpStatus.FORBIDDEN).json(returnObject.put("msg", "Invalid User or Token"));
             }
             System.out.println("USER IN AUTHENTICATE: " + verifiedTokenUser);
-            ctx.attribute("user", verifiedTokenUser);
+            ctx.attribute("user", verifiedTokenUser); // -> ctx.attribute("user") in ApplicationConfig beforeMatched filter
         };
     }
 
@@ -170,7 +163,7 @@ public class SecurityController implements ISecurityController {
             } else {
                 throw new NotAuthorizedException(403, "Token is not valid");
             }
-        } catch (ParseException | JOSEException | NotAuthorizedException e) {
+        } catch (ParseException | NotAuthorizedException | TokenVerificationException e) {
             e.printStackTrace();
             throw new ApiException(HttpStatus.UNAUTHORIZED.getCode(), "Unauthorized. Could not verify token");
         }

@@ -1,6 +1,5 @@
 package dk.cphbusiness.security.entities;
 
-import dk.cphbusiness.security.ISecurityUser;
 import jakarta.persistence.*;
 import lombok.*;
 import org.mindrot.jbcrypt.BCrypt;

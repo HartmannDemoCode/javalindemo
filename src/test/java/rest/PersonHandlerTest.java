@@ -40,7 +40,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 class PersonHandlerTest {
 
     private static ApplicationConfig appConfig;
-    private static final String BASE_URL = "http://localhost:7777";
+    private static final String BASE_URL = "http://localhost:7777/api";
     private static EntityManagerFactory emfTest;
     private static ObjectMapper jsonMapper = new ObjectMapper();
 
@@ -110,7 +110,6 @@ class PersonHandlerTest {
     @Test
     @DisplayName("Hul igennem")
     public void testServerIsUp() {
-        System.out.println("Testing is server UP");
         given().when().get("/open/person").peek().then().statusCode(200);
     }
 
@@ -155,6 +154,7 @@ class PersonHandlerTest {
                 .get("/open/person")
                 .prettyPeek()
                 .then()
+                .statusCode(200)
                 .body(uuid + ".firstName", is(personDTO.getFirstName()));
     }
 
@@ -199,6 +199,7 @@ class PersonHandlerTest {
     }
 
     @Test
+    @DisplayName("Test get a peron by id")
     public void testGetById() {
         Person person = (Person) entities.get("Person3");
         given()
@@ -214,6 +215,7 @@ class PersonHandlerTest {
     }
 
     @Test
+    @DisplayName("Test get a 404 status code when person not found")
     public void testError() {
         given()
                 .contentType(ContentType.JSON)

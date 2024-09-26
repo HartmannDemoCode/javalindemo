@@ -47,7 +47,6 @@ public class PersonEntityController implements IController {
 //            ctx.pathParamAsClass("id", Integer.class)
 //                    .check(id -> id > 0 && id < 4, "Id must be between 1 and 3"); // Use a path param validator
             int id = Integer.parseInt(ctx.pathParam("id"));
-            System.out.println("IIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIID: "+id);
             Person p = personDAO.findById(id);
             if (p == null){
                 ctx.attribute("msg", "No person with that id");

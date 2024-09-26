@@ -1,6 +1,7 @@
 package dk.cphbusiness.security;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import dk.cphbusiness.utils.Utils;
 import io.javalin.apibuilder.EndpointGroup;
 import io.javalin.security.RouteRole;
 
@@ -11,7 +12,7 @@ import static io.javalin.apibuilder.ApiBuilder.*;
  *  Author: Thomas Hartmann
  */
 public class SecurityRoutes {
-    private static ObjectMapper jsonMapper = new ObjectMapper();
+    private static ObjectMapper jsonMapper = new Utils().getObjectMapper();
     // TODO : SOLVE PROBLEM WITH INJECTING EntityManagerFactory
     private static SecurityController securityController = SecurityController.getInstance();
     public static EndpointGroup getSecurityRoutes() {
@@ -28,7 +29,7 @@ public class SecurityRoutes {
     public static EndpointGroup getSecuredRoutes(){
         return ()->{
             path("/protected", ()->{
-                before(securityController.authenticate());
+                before(securityController.authenticate()); // check if there is a valid token in the header
                 get("/user_demo",(ctx)->ctx.json(jsonMapper.createObjectNode().put("msg",  "Hello from USER Protected")),Role.USER);
                 get("/admin_demo",(ctx)->ctx.json(jsonMapper.createObjectNode().put("msg",  "Hello from ADMIN Protected")),Role.ADMIN);
             });

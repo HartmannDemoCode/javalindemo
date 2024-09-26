@@ -191,6 +191,7 @@ app.staticFiles.location("/public");
 ### Security
 - JWT
 - Password hashing
+  - BCrypt inside the User entity class
 
 1. Add dependencies: 
   - hibernate
@@ -201,29 +202,26 @@ app.staticFiles.location("/public");
 2. Create User and Role Entities
   - User has a username, password and a list of roles. When a user is created, it should be assigned a Basic User Role and password should be hashed.
   - Role has a name
-3. Create a java interface: ISecurity
+3. Create a java interface: ISecurityDAO
   - It should have the following methods:
-    - User getVarifiedUser(String username, String password)
-    - boolean isUserInRole(String username, String role)
-    - User verifyToken(String token)
-    - String createToken(String username, String role)
-    - void registerUser(String username, String password)
-    - void addRoleToUser(String username, String role)
-    - void removeRoleFromUser(String username, String role)
-    - void deleteUser(String username)
+  - UserDTO getVerifiedUser(String username, String password) throws ValidationException;
+  - User createUser(String username, String password);
+
 4. Create a UserDAO that implements the ISecurity Interface
-5. Create endpoints:
+5. Create security endpoints in an EndpointGroup:
   - POST /login: Returns a JWT token
   - POST /register: Creates a new User with a hashed password and Basic User Role. That too can return a token (so user dont have to login after register)
 6. Create a SecurityController that handles:
-  - login
-  - register
-  - addRoleToUser
-  - removeRoleFromUser
-  - authenticateUser
-  - authorizeUser
-7. Create a SecurityFilter that handles:
-  - JWT token validation (IE Authentication) using app.before()
+   - Handler login(); // to get a token
+   - Handler register(); // to get a user
+   - Handler authenticate(); // to verify roles inside token
+   - boolean authorize(UserDTO userDTO, Set<String> allowedRoles); // to verify user roles - is used in ApplicationConfig with beforeMatcher
+   - String createToken(UserDTO user) throws Exception;
+   - UserDTO verifyToken(String token) throws Exception;
+7. Create enpoints for protected ressources with `before` handler
+   - `before(securityController.authenticate());` and protected endpoints like:
+   - `get("/user_demo",(ctx)->ctx.json(jsonMapper.createObjectNode().put("msg",  "Hello from USER Protected")),Role.USER);`
+8. Create a `before` handler in the `ApplicationConfig` class that checks every request for valid roles ("ANYONE" is used for curcumventing the check)
   - Authorization (Checking for the roles assigned to the user inside the token)
 
 ### RestAssured with Hamcrest and testcontainers
