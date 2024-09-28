@@ -36,5 +36,5 @@ jobs:
           context: .
           file: ./Dockerfile
           push: true
-          tags: ${{ secrets.DOCKERHUB_USERNAME }}/ci_cd_javalin_demo:latest
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/javalindemo:latest
 
