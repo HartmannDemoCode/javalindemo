@@ -286,6 +286,7 @@ class PersonHandlerTest {
         PersonDTO pdto = new PersonDTO(p1);
 //        jsonMapper.findAndRegisterModules(); // In order to use java 8 LocalDate
         String requestBody = jsonMapper.writeValueAsString(pdto);
+        System.out.println("REQUEST BODY: " + requestBody);
 
         given()
                 .accept("application/json")

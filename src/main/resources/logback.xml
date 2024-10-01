@@ -1,11 +1,18 @@
 <configuration>
 
     <property name="HOME_LOG" value="logs/app.log"/>
+    <property name="ERROR_COLOR" value="\u001B[31m" />    <!-- Red for ERROR -->
+    <property name="WARN_COLOR" value="\u001B[33m" />     <!-- Yellow for WARN -->
+    <property name="INFO_COLOR" value="\u001B[32m" />     <!-- Green for INFO -->
+    <property name="DEBUG_COLOR" value="\u001B[34m" />    <!-- Blue for DEBUG -->
+    <property name="TRACE_COLOR" value="\u001B[36m" />    <!-- Cyan for TRACE -->
+    <property name="RESET" value="\u001B[0m" />          <!-- Reset color -->
 
     <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
         <encoder>
             <Pattern>
-                %d{HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n
+<!--                %d{HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n-->
+                %d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %highlight(%-40.40logger{39}) - %msg%n
             </Pattern>
         </encoder>
     </appender>
