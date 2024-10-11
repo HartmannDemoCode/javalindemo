@@ -1,7 +1,7 @@
 package dk.cphbusiness.security;
 import dk.bugelhartmann.UserDTO;
 import dk.cphbusiness.security.entities.User;
-import dk.cphbusiness.security.exceptions.ValidationException;
+import dk.cphbusiness.exceptions.ValidationException;
 
 /**
  * Purpose: To handle security with the database

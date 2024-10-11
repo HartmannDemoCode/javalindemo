@@ -101,7 +101,7 @@ public class SecurityTest {
     }
 
     @Test
-    @DisplayName("Test login for user")
+    @DisplayName("Test login for user and access protected endpoint")
     public void testRestForUser() {
         login("user", "user123");
         given()
@@ -115,7 +115,7 @@ public class SecurityTest {
     }
 
     @Test
-    @DisplayName("Test login for admin not authorized")
+    @DisplayName("Test access ADMIN protected endpoint with USER role failing")
     public void testRestForUserProtection() {
         login("user", "user123");
         given()
@@ -125,7 +125,7 @@ public class SecurityTest {
                 .when()
                 .get("/protected/admin_demo").then()
                 .statusCode(403)
-                .body("msg", equalTo("Unauthorized with roles: [user]. Needed roles are: [ADMIN]"));
+                .body("msg", equalTo("User was not authorized with roles: [user]. Needed roles are: [ADMIN]"));
     }
 
     @Test

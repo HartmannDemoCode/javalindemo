@@ -31,7 +31,7 @@ public class SecurityRoutes {
             path("/protected", ()->{
 //                before(securityController.authenticate()); // check if there is a valid token in the header
                 get("/user_demo",(ctx)->ctx.json(jsonMapper.createObjectNode().put("msg",  "Hello from USER Protected")),Role.USER);
-                get("/admin_demo",(ctx)->ctx.json(jsonMapper.createObjectNode().put("msg",  "Hello from ADMIN Protected")),Role.ADMIN,Role.USER);
+                get("/admin_demo",(ctx)->ctx.json(jsonMapper.createObjectNode().put("msg",  "Hello from ADMIN Protected")),Role.ADMIN);
             });
         };
     }

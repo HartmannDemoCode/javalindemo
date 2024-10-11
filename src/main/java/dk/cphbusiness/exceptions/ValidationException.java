@@ -1,4 +1,4 @@
-package dk.cphbusiness.security.exceptions;
+package dk.cphbusiness.exceptions;
 
 /**
  * Purpose: To handle validation exceptions in the API

@@ -4,10 +4,9 @@ import dk.bugelhartmann.UserDTO;
 import dk.cphbusiness.exceptions.ApiException;
 import dk.cphbusiness.security.entities.Role;
 import dk.cphbusiness.security.entities.User;
-import dk.cphbusiness.security.exceptions.ValidationException;
+import dk.cphbusiness.exceptions.ValidationException;
 import jakarta.persistence.*;
 
-import java.util.*;
 import java.util.stream.Collectors;
 
 

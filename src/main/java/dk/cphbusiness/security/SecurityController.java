@@ -6,12 +6,11 @@ import dk.bugelhartmann.*;
 import dk.cphbusiness.persistence.HibernateConfig;
 import dk.cphbusiness.exceptions.ApiException;
 import dk.cphbusiness.security.entities.User;
-import dk.cphbusiness.security.exceptions.NotAuthorizedException;
-import dk.cphbusiness.security.exceptions.ValidationException;
+import dk.cphbusiness.exceptions.NotAuthorizedException;
+import dk.cphbusiness.exceptions.ValidationException;
 import dk.cphbusiness.utils.Utils;
 import io.javalin.http.Handler;
 import io.javalin.http.HttpStatus;
-import io.javalin.http.UnauthorizedResponse;
 import jakarta.persistence.EntityExistsException;
 import jakarta.persistence.EntityNotFoundException;
 
@@ -91,29 +90,41 @@ public class SecurityController implements ISecurityController {
         ObjectNode returnObject = objectMapper.createObjectNode();
 
         return (ctx) -> {
-            // This is a preflight request => OK
+            // This is a preflight request => no need for authentication
             if (ctx.method().toString().equals("OPTIONS")) {
                 ctx.status(200);
                 return;
             }
+            // If the endpoint is not protected with roles, then skip
+            Set<String> roles = ctx.routeRoles().stream().map(role->role.toString().toUpperCase()).collect(Collectors.toSet());
+            if(isOpenEndpoint(roles))
+                return;
+
             String header = ctx.header("Authorization");
             // If there is no token we do not allow entry
             if (header == null) {
-                ctx.status(401).json(returnObject.put("msg", "Authorization header missing"));
-                return;
+//                ctx.status(401).json(returnObject.put("msg", "Authorization header missing"));
+//                return;
+//                throw new UnauthorizedResponse("Authorization header is missing"); // UnauthorizedResponse is javalin 6 specific
+                throw new dk.cphbusiness.exceptions.ApiException(401, "Authorization header is missing");
             }
             String token = header.split(" ")[1];
             // If the Authorization Header was malformed = no entry
             if (token == null) {
-                ctx.status(400).json(returnObject.put("msg", "Authorization header malformed"));
-                return;
+//                ctx.status(400).json(returnObject.put("msg", "Authorization header malformed"));
+//                return;
+//                throw new UnauthorizedResponse("Authorization header is malformed");
+                throw new dk.cphbusiness.exceptions.ApiException(401, "Authorization header is malformed");
+
             }
             UserDTO verifiedTokenUser = verifyToken(token);
             if (verifiedTokenUser == null) {
-                ctx.status(403).json(returnObject.put("msg", "Invalid User or Token"));
-                return;
+//                ctx.status(403).json(returnObject.put("msg", "Invalid User or Token"));
+//                return;
+//                throw new UnauthorizedResponse("Invalid user or token");
+                throw new dk.cphbusiness.exceptions.ApiException(401, "Invalid user or token");
             }
-            System.out.println("USER IN AUTHENTICATE: " + verifiedTokenUser);
+//            System.out.println("USER IN AUTHENTICATE: " + verifiedTokenUser);
             ctx.attribute("user", verifiedTokenUser); // -> ctx.attribute("user") in ApplicationConfig beforeMatched filter
         };
     }
@@ -121,20 +132,21 @@ public class SecurityController implements ISecurityController {
     @Override
     public Handler authorize() {
         ObjectNode returnObject = objectMapper.createObjectNode();
-        return (ctx) -> {
-            // If the endpoint is not protected with any roles:
-            if (ctx.routeRoles().isEmpty())
-                return;
 
-            // 1. Get permitted roles and Check if the endpoint is open to all with the ANYONE role
-            Set<String> allowedRoles = ctx.routeRoles().stream().map(role -> role.toString().toUpperCase()).collect(Collectors.toSet());
-            if (allowedRoles.contains("ANYONE")) {
+        return (ctx) -> {
+            Set<String> allowedRoles = ctx.routeRoles()
+                    .stream()
+                    .map(role -> role.toString().toUpperCase())
+                    .collect(Collectors.toSet());
+
+            // 1. Check if the endpoint is open to all (either by not having any roles or having the ANYONE role set
+            if (isOpenEndpoint(allowedRoles))
                 return;
-            }
             // 2. Get user and ensure it is not null
             UserDTO user = ctx.attribute("user");
             if (user == null) {
-                throw new UnauthorizedResponse("No user was added from the token");
+//                throw new UnauthorizedResponse("No user was added from the token");
+                throw new dk.cphbusiness.exceptions.ApiException(403, "No user was added from token");
             }
 
             // 3. See if any role matches
@@ -144,12 +156,27 @@ public class SecurityController implements ISecurityController {
                     hasAccess.set(true);
                 }
             });
-            if (!hasAccess.get())
-                throw new UnauthorizedResponse("User was not authorized with roles: "+user.getRoles()+". Needed roles are: "+allowedRoles);
+            if (!hasAccess.get()){
+                ctx.status(403);
+//                throw new UnauthorizedResponse("User was not authorized with roles: "+user.getRoles()+". Needed roles are: "+allowedRoles);
+                throw new dk.cphbusiness.exceptions.ApiException(403,"User was not authorized with roles: "+user.getRoles()+". Needed roles are: "+allowedRoles);
+            }
         };
     }
 
-        @Override
+    private boolean isOpenEndpoint(Set<String> allowedRoles) {
+        // If the endpoint is not protected with any roles:
+        if (allowedRoles.isEmpty())
+            return true;
+
+        // 1. Get permitted roles and Check if the endpoint is open to all with the ANYONE role
+        if (allowedRoles.contains("ANYONE")) {
+            return true;
+        }
+        return false;
+    }
+
+    @Override
         public String createToken (UserDTO user){
             try {
                 String ISSUER;
