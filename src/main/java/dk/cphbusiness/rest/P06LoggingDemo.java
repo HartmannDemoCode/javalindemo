@@ -18,6 +18,8 @@ public class P06LoggingDemo {
 
     public static void main(String[] args) {
         Javalin app = Javalin.create().start(7007);
+        app.before((ctx)->{ System.out.println("Before Hello 1"); });
+        app.before((ctx)->{ System.out.println("Before Hello 2"); });
         app.get("/hello", ctx -> {
             logger.error("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX Error Hello World");
             logger.debug("YYYYYYYYYYYYYYYYYYYYYYYYYYYYYY Debug Hello World");
@@ -26,5 +28,6 @@ public class P06LoggingDemo {
             System.err.println("Hello ERROR World");
             ctx.result("Hello World");
         });
+
     }
 }

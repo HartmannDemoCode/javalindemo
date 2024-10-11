@@ -3,6 +3,7 @@ package dk.cphbusiness.rest;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import dk.bugelhartmann.UserDTO;
 import dk.cphbusiness.exceptions.ApiException;
+import dk.cphbusiness.security.ISecurityController;
 import dk.cphbusiness.security.SecurityController;
 import io.javalin.Javalin;
 import io.javalin.apibuilder.EndpointGroup;
@@ -13,6 +14,7 @@ import io.javalin.http.HttpStatus;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static io.javalin.apibuilder.ApiBuilder.before;
 import static io.javalin.apibuilder.ApiBuilder.path;
 
 import dk.cphbusiness.security.SecurityRoutes.Role;
@@ -27,6 +29,7 @@ public class ApplicationConfig {
     private static ApplicationConfig appConfig;
     private static JavalinConfig javalinConfig;
     private static Javalin app;
+    private static ISecurityController securityController = SecurityController.getInstance();
 
     private ApplicationConfig() {
     }
@@ -83,29 +86,34 @@ public class ApplicationConfig {
 
     // Adding below methods to ApplicationConfig, means that EVERY ROUTE will be checked for security roles. So open routes must have a role of ANYONE
     public ApplicationConfig checkSecurityRoles() {
-        app.beforeMatched(ctx -> { // Before matched is different from before, in that it is not called for 404 etc.
-            if (ctx.routeRoles().isEmpty())
-                return;
-            // 1. Get permitted roles
-            Set<String> allowedRoles = ctx.routeRoles().stream().map(role -> role.toString().toUpperCase()).collect(Collectors.toSet());
-            if (allowedRoles.contains("ANYONE")) {
-                return;
-            }
-            // 2. Get user roles
-            UserDTO user = ctx.attribute("user");
-
-            // 3. Compare
-            if (user == null)
-                ctx.status(HttpStatus.FORBIDDEN)
-                        .json(jsonMapper.createObjectNode()
-                                .put("msg", "Not authorized. No username were added from the token"));
-
-            if (!SecurityController.getInstance().authorize(user, allowedRoles)) {
-                System.out.println("USER: " + user + " is not authorized. Needed roles are: " + allowedRoles);
-                // throw new UnAuthorizedResponse(); // version 6 migration guide
-                throw new ApiException(HttpStatus.FORBIDDEN.getCode(), "Unauthorized with roles: " + user.getRoles() + ". Needed roles are: " + allowedRoles);
-            }
-        });
+        app.beforeMatched(securityController.authenticate()); // check if there is a valid token in the header
+        app.beforeMatched(securityController.authorize());
+//                ctx -> { // Before matched is different from before, in that it is not called for 404 etc.
+//            if (ctx.routeRoles().isEmpty())
+//                return;
+//            // 1. Get permitted roles
+//            Set<String> allowedRoles = ctx.routeRoles().stream().map(role -> role.toString().toUpperCase()).collect(Collectors.toSet());
+//            if (allowedRoles.contains("ANYONE")) {
+//                return;
+//            }
+//            // 2. Get user roles
+//            UserDTO user = ctx.attribute("user");
+//
+//            // 3. Compare
+//            if (user == null) {
+//                ctx.status(HttpStatus.FORBIDDEN)
+//                        .json(jsonMapper.createObjectNode()
+//                                .put("msg", "Not authorized. No username were added from the token"));
+//                return;
+//            }
+//
+//
+//            if (!SecurityController.getInstance().authorize(user, allowedRoles)) {
+//                System.out.println("USER: " + user + " is not authorized. Needed roles are: " + allowedRoles);
+//                // throw new UnAuthorizedResponse(); // version 6 migration guide
+//                throw new ApiException(HttpStatus.FORBIDDEN.getCode(), "Unauthorized with roles: " + user.getRoles() + ". Needed roles are: " + allowedRoles);
+//            }
+//        } );
 
 
         // Check roles on the user (ctx.attribute("username") and compare with permittedRoles using securityController.authorize()

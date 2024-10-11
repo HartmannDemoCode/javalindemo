@@ -1,0 +1,27 @@
+POST http://{{url}}/auth/register
+
+{
+    "username": "thomas",
+    "password": "test123"
+}
+###
+POST http://{{url}}/auth/login
+
+{
+    "username": "thomas",
+    "password": "test123"
+}
+
+###
+POST http://{{url}}/person
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJUaG9tYXMgSGFydG1hbm4iLCJzdWIiOiJ1c2VyNiIsImV4cCI6MTcwMTgwMTM3NCwicm9sZXMiOiJ1c2VyIiwidXNlcm5hbWUiOiJ1c2VyNiJ9.wgR_NbwhlbBx0MvyDcpCR62j5lSWz7FQ1go1P0d1pzg
+
+
+{
+         "firstName": "Thomas",
+         "lastName": "Hartmann",
+         "email": "thomas@mail.com",
+         "birthDate": "1980-01-01",
+}
+###
+GET http://{{url}}/person2/1

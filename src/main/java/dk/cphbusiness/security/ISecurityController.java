@@ -13,7 +13,10 @@ public interface ISecurityController {
     Handler login(); // to get a token
     Handler register(); // to get a user
     Handler authenticate(); // to verify roles inside token
-    boolean authorize(UserDTO userDTO, Set<String> allowedRoles); // to verify user roles
+//    boolean authorize(UserDTO userDTO, Set<String> allowedRoles); // to verify user roles
+
+    Handler authorize();
+
     String createToken(UserDTO user) throws Exception;
     UserDTO verifyToken(String token) throws Exception;
 }
