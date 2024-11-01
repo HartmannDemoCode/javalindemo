@@ -1,7 +1,5 @@
 package dk.cphbusiness.rest;
 
-import dk.cphbusiness.rest.controllers.IController;
-import dk.cphbusiness.rest.controllers.PersonEntityController;
 import dk.cphbusiness.security.SecurityRoutes;
 
 import static io.javalin.apibuilder.ApiBuilder.get;
@@ -26,11 +24,11 @@ public class P08All {
             .getInstance()
             .initiateServer()
             .checkSecurityRoles() // check for role when route is called
-            .setRoutes(SecurityRoutes.getSecurityRoutes())
-            .setRoutes(SecurityRoutes.getSecuredRoutes())
-            .setRoutes(new RestRoutes().getOpenRoutes())
-            .setRoutes(new RestRoutes().personEntityRoutes) // A different way to get the EndpointGroup.
-                .setRoutes(()->{
+            .setRoute(SecurityRoutes.getSecurityRoutes())
+            .setRoute(SecurityRoutes.getSecuredRoutes())
+            .setRoute(new RestRoutes().getOpenRoutes())
+            .setRoute(new RestRoutes().personEntityRoutes) // A different way to get the EndpointGroup.
+                .setRoute(()->{
                     path("/index",()->{
                         get("/",ctx->ctx.render("index.html"));
                     });

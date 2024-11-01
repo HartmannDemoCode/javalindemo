@@ -61,4 +61,28 @@ public class SecurityDAO implements ISecurityDAO {
             throw new ApiException(400, e.getMessage());
         }
     }
+
+    @Override
+    public User addRoleToUser(String username, String role) {
+        try(EntityManager em = emf.createEntityManager()){
+            User foundUser = em.find(User.class, username);
+            Role foundRole = em.find(Role.class, role);
+            em.getTransaction().begin();
+            foundUser.addRole(foundRole);
+            em.getTransaction().commit();
+            return foundUser;
+        }
+    }
+
+    @Override
+    public User removeRoleFromUser(String username, String role) {
+        try(EntityManager em = emf.createEntityManager()){
+            User foundUser = em.find(User.class, username);
+            Role foundRole = em.find(Role.class, role);
+            em.getTransaction().begin();
+            foundUser.removeRole(role);
+            em.getTransaction().commit();
+            return foundUser;
+        }
+    }
 }

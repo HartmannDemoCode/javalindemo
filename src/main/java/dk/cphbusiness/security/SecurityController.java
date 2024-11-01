@@ -11,6 +11,7 @@ import dk.cphbusiness.exceptions.ValidationException;
 import dk.cphbusiness.utils.Utils;
 import io.javalin.http.Handler;
 import io.javalin.http.HttpStatus;
+import io.javalin.http.UnauthorizedResponse;
 import jakarta.persistence.EntityExistsException;
 import jakarta.persistence.EntityNotFoundException;
 
@@ -59,10 +60,6 @@ public class SecurityController implements ISecurityController {
                 System.out.println(e.getMessage());
                 ctx.json(returnObject.put("msg", e.getMessage()));
             }
-//            catch (Exception e) {
-//                e.printStackTrace();
-//                throw new ApiException(500, "Internal server error");
-//            }
         };
     }
 
@@ -85,6 +82,10 @@ public class SecurityController implements ISecurityController {
         };
     }
 
+    /**
+     * Purpose: For a user to prove who they are with a valid token
+     * @return
+     */
     @Override
     public Handler authenticate() {
         ObjectNode returnObject = objectMapper.createObjectNode();
@@ -95,40 +96,36 @@ public class SecurityController implements ISecurityController {
                 ctx.status(200);
                 return;
             }
-            // If the endpoint is not protected with roles, then skip
-            Set<String> roles = ctx.routeRoles().stream().map(role->role.toString().toUpperCase()).collect(Collectors.toSet());
-            if(isOpenEndpoint(roles))
+            // If the endpoint is not protected with roles or is open to ANYONE role, then skip
+            Set<String> allowedRoles = ctx.routeRoles().stream().map(role->role.toString().toUpperCase()).collect(Collectors.toSet());
+            if(isOpenEndpoint(allowedRoles))
                 return;
 
-            String header = ctx.header("Authorization");
             // If there is no token we do not allow entry
+            String header = ctx.header("Authorization");
             if (header == null) {
-//                ctx.status(401).json(returnObject.put("msg", "Authorization header missing"));
-//                return;
-//                throw new UnauthorizedResponse("Authorization header is missing"); // UnauthorizedResponse is javalin 6 specific
+//                throw new UnauthorizedResponse("Authorization header is missing"); // UnauthorizedResponse is javalin 6 specific but response is not json!
                 throw new dk.cphbusiness.exceptions.ApiException(401, "Authorization header is missing");
             }
+
+            // If the Authorization Header was malformed, then no entry
             String token = header.split(" ")[1];
-            // If the Authorization Header was malformed = no entry
             if (token == null) {
-//                ctx.status(400).json(returnObject.put("msg", "Authorization header malformed"));
-//                return;
-//                throw new UnauthorizedResponse("Authorization header is malformed");
                 throw new dk.cphbusiness.exceptions.ApiException(401, "Authorization header is malformed");
 
             }
             UserDTO verifiedTokenUser = verifyToken(token);
             if (verifiedTokenUser == null) {
-//                ctx.status(403).json(returnObject.put("msg", "Invalid User or Token"));
-//                return;
-//                throw new UnauthorizedResponse("Invalid user or token");
                 throw new dk.cphbusiness.exceptions.ApiException(401, "Invalid user or token");
             }
-//            System.out.println("USER IN AUTHENTICATE: " + verifiedTokenUser);
             ctx.attribute("user", verifiedTokenUser); // -> ctx.attribute("user") in ApplicationConfig beforeMatched filter
         };
     }
 
+    /**
+     * Purpose: To check if the Authenticated user has the rights to access a protected endpoint
+     * @return
+     */
     @Override
     public Handler authorize() {
         ObjectNode returnObject = objectMapper.createObjectNode();
@@ -146,23 +143,21 @@ public class SecurityController implements ISecurityController {
             UserDTO user = ctx.attribute("user");
             if (user == null) {
 //                throw new UnauthorizedResponse("No user was added from the token");
-                throw new dk.cphbusiness.exceptions.ApiException(403, "No user was added from token");
+                throw new dk.cphbusiness.exceptions.ApiException(401, "No user was added from token");
             }
 
             // 3. See if any role matches
-            AtomicBoolean hasAccess = new AtomicBoolean(false); // Since we update this in a lambda expression, we need to use an AtomicBoolean
-            user.getRoles().stream().forEach(role -> {
-                if (allowedRoles.contains(role.toUpperCase())) {
-                    hasAccess.set(true);
-                }
-            });
-            if (!hasAccess.get()){
-                ctx.status(403);
-//                throw new UnauthorizedResponse("User was not authorized with roles: "+user.getRoles()+". Needed roles are: "+allowedRoles);
-                throw new dk.cphbusiness.exceptions.ApiException(403,"User was not authorized with roles: "+user.getRoles()+". Needed roles are: "+allowedRoles);
-            }
+            if(!userHasAllowedRole(user, allowedRoles))
+                throw new ApiException(403,"User was not authorized with roles: "+ user.getRoles()+". Needed roles are: "+ allowedRoles);
+
         };
     }
+
+    private static boolean userHasAllowedRole(UserDTO user, Set<String> allowedRoles) {
+        return user.getRoles().stream()
+                .anyMatch(role -> allowedRoles.contains(role.toUpperCase()));
+    }
+
 
     private boolean isOpenEndpoint(Set<String> allowedRoles) {
         // If the endpoint is not protected with any roles:
@@ -188,8 +183,8 @@ public class SecurityController implements ISecurityController {
                     TOKEN_EXPIRE_TIME = System.getenv("TOKEN_EXPIRE_TIME");
                     SECRET_KEY = System.getenv("SECRET_KEY");
                 } else {
-                    ISSUER = "Thomas Hartmann";
-                    TOKEN_EXPIRE_TIME = "1800000"; // 30 min
+                    ISSUER = Utils.getPropertyValue("ISSUER", "config.properties");
+                    TOKEN_EXPIRE_TIME = Utils.getPropertyValue("TOKEN_EXPIRE_TIME", "config.properties");
                     SECRET_KEY = Utils.getPropertyValue("SECRET_KEY", "config.properties");
                 }
                 return tokenSecurity.createToken(user, ISSUER, TOKEN_EXPIRE_TIME, SECRET_KEY);

@@ -49,11 +49,13 @@ POST http://{{url}}/auth/login
     "username": "user6",
     "password": "test123"
 }
+> {%
+ client.global.set("token", response.body.token);
+%}
 
 ###
 POST http://{{url}}/person
-Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJUaG9tYXMgSGFydG1hbm4iLCJzdWIiOiJ1c2VyNiIsImV4cCI6MTcwMTgwMTM3NCwicm9sZXMiOiJ1c2VyIiwidXNlcm5hbWUiOiJ1c2VyNiJ9.wgR_NbwhlbBx0MvyDcpCR62j5lSWz7FQ1go1P0d1pzg
-
+Authorization: Bearer {{token}}
 
 {
          "firstName": "Thomas",
@@ -62,4 +64,5 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJUaG9tYXMgSGFydG1hbm4iLCJzd
          "birthDate": "1980-01-01",
 }
 ###
-GET http://{{url}}/person2/1
+GET http://{{url}}/api/person/1
+Content-Type: application/json

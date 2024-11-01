@@ -1,7 +1,7 @@
 package dk.cphbusiness.rest;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import dk.bugelhartmann.UserDTO;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import dk.cphbusiness.exceptions.ApiException;
 import dk.cphbusiness.security.ISecurityController;
 import dk.cphbusiness.security.SecurityController;
@@ -9,16 +9,9 @@ import io.javalin.Javalin;
 import io.javalin.apibuilder.EndpointGroup;
 import io.javalin.config.JavalinConfig;
 import io.javalin.http.Context;
-import io.javalin.http.HttpStatus;
-
-import java.util.Set;
-import java.util.stream.Collectors;
-
-import static io.javalin.apibuilder.ApiBuilder.before;
 import static io.javalin.apibuilder.ApiBuilder.path;
 
 import dk.cphbusiness.security.SecurityRoutes.Role;
-//import io.javalin.plugin.bundled.
 
 /**
  * Purpose: To configure the Javalin server
@@ -55,14 +48,10 @@ public class ApplicationConfig {
         return appConfig;
     }
 
-    public ApplicationConfig setRoutes(EndpointGroup routes) {
+    public ApplicationConfig setRoute(EndpointGroup route) {
         javalinConfig.router.apiBuilder(() -> {
-            path("/", routes);
+            path("/", route);
         });
-
-//        appConfig.setRoutes(() -> {
-//            path("/", routes); // e.g. /person
-//        });
         return appConfig;
     }
 
@@ -87,64 +76,9 @@ public class ApplicationConfig {
     // Adding below methods to ApplicationConfig, means that EVERY ROUTE will be checked for security roles. So open routes must have a role of ANYONE
     public ApplicationConfig checkSecurityRoles() {
         app.beforeMatched(securityController.authenticate()); // check if there is a valid token in the header
-        app.beforeMatched(securityController.authorize());
-//                ctx -> { // Before matched is different from before, in that it is not called for 404 etc.
-//            if (ctx.routeRoles().isEmpty())
-//                return;
-//            // 1. Get permitted roles
-//            Set<String> allowedRoles = ctx.routeRoles().stream().map(role -> role.toString().toUpperCase()).collect(Collectors.toSet());
-//            if (allowedRoles.contains("ANYONE")) {
-//                return;
-//            }
-//            // 2. Get user roles
-//            UserDTO user = ctx.attribute("user");
-//
-//            // 3. Compare
-//            if (user == null) {
-//                ctx.status(HttpStatus.FORBIDDEN)
-//                        .json(jsonMapper.createObjectNode()
-//                                .put("msg", "Not authorized. No username were added from the token"));
-//                return;
-//            }
-//
-//
-//            if (!SecurityController.getInstance().authorize(user, allowedRoles)) {
-//                System.out.println("USER: " + user + " is not authorized. Needed roles are: " + allowedRoles);
-//                // throw new UnAuthorizedResponse(); // version 6 migration guide
-//                throw new ApiException(HttpStatus.FORBIDDEN.getCode(), "Unauthorized with roles: " + user.getRoles() + ". Needed roles are: " + allowedRoles);
-//            }
-//        } );
-
-
-        // Check roles on the user (ctx.attribute("username") and compare with permittedRoles using securityController.authorize()
-//        app.updateConfig(config -> {
-
-//            config.accessManager((handler, ctx, permittedRoles) -> {
-        // permitted roles are defined in the last arg to routes: get("/", ctx -> ctx.result("Hello World"), Role.ANYONE);
-
-//                Set<String> allowedRoles = permittedRoles.stream().map(role -> role.toString().toUpperCase()).collect(Collectors.toSet());
-//                if (allowedRoles.contains("ANYONE") || ctx.method().toString().equals("OPTIONS")) {
-//                    // Allow requests from anyone and OPTIONS requests (preflight in CORS)
-//                    handler.handle(ctx);
-//                    return;
-//                }
-//
-//                UserDTO user = ctx.attribute("user");
-//                System.out.println("USER IN CHECK_SEC_ROLES: " + user);
-//                if (user == null)
-//                    ctx.status(HttpStatus.FORBIDDEN)
-//                            .json(jsonMapper.createObjectNode()
-//                                    .put("msg", "Not authorized. No username were added from the token"));
-//
-//                if (SecurityController.getInstance().authorize(user, allowedRoles))
-//                    handler.handle(ctx);
-//                else
-//                    throw new ApiException(HttpStatus.FORBIDDEN.getCode(), "Unauthorized with roles: " + allowedRoles);
-//            });
-//        });
+        app.beforeMatched(securityController.authorize()); // check if the user has the required role
         return appConfig;
     }
-
 
     public ApplicationConfig startServer(int port) {
         app.start(port);
@@ -156,33 +90,31 @@ public class ApplicationConfig {
         app.stop();
         return appConfig;
     }
-//    public static int getPort() {
-//        return Integer.parseInt(Utils.getPomProp("javalin.port"));
-//    }
-
-    public ApplicationConfig setErrorHandling() {
-        // To use this one, just set ctx.status(404) in the controller and add a ctx.attribute("msg", "Your message") to the ctx
-        // Look at the PersonController: delete() method for an example
-        // Might be better to just use the setApiExceptionHandling method below
-        app.error(404, ctx -> {
-            String message = ctx.attribute("msg");
-            message = "{\"msg\": \"" + message + "\"}";
-            ctx.json(message);
-        });
-        return appConfig;
-    }
 
     public ApplicationConfig setApiExceptionHandling() {
         // Might be overruled by the setErrorHandling method
         app.exception(ApiException.class, (e, ctx) -> {
             int statusCode = e.getStatusCode();
-            System.out.println("Status code: " + statusCode + ", Message: " + e.getMessage());
-            var on = jsonMapper
+            ObjectNode on = jsonMapper
                     .createObjectNode()
                     .put("status", statusCode)
                     .put("msg", e.getMessage());
             ctx.json(on);
             ctx.status(statusCode);
+        });
+        return appConfig;
+    }
+
+    public ApplicationConfig setErrorHandling() {
+        // To use this one, just set ctx.status(404) in the controller and add a ctx.attribute("msg", "Your message") to the ctx
+        // Look at the PersonController: delete() method for an example
+        // Might be better to just use the setApiExceptionHandling method above
+        app.error(404, ctx -> {
+            String message = ctx.attribute("msg");
+            ObjectNode on = jsonMapper
+                    .createObjectNode()
+                    .put("msg", message);
+            ctx.json(on);
         });
         return appConfig;
     }

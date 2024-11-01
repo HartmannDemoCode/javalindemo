@@ -65,6 +65,7 @@ public class User implements Serializable, ISecurityUser {
 
     public void addRole(Role role) {
         roles.add(role);
+        role.getUsers().add(this);
     }
     public void removeRole(String userRole) {
         roles.stream()

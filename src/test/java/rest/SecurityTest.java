@@ -2,7 +2,6 @@ package rest;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import dk.cphbusiness.dtos.PersonDTO;
 import dk.cphbusiness.persistence.HibernateConfig;
 import dk.cphbusiness.persistence.model.IJPAEntity;
 import dk.cphbusiness.persistence.model.Person;
@@ -53,10 +52,10 @@ public class SecurityTest {
                 .checkSecurityRoles()
                 .setErrorHandling()
                 .setGeneralExceptionHandling()
-                .setRoutes(restRoutes.getOpenRoutes())
-                .setRoutes(SecurityRoutes.getSecurityRoutes())
-                .setRoutes(SecurityRoutes.getSecuredRoutes())
-                .setRoutes(restRoutes.personEntityRoutes) // A different way to get the EndpointGroup. Getting data from DB
+                .setRoute(restRoutes.getOpenRoutes())
+                .setRoute(SecurityRoutes.getSecurityRoutes())
+                .setRoute(SecurityRoutes.getSecuredRoutes())
+                .setRoute(restRoutes.personEntityRoutes) // A different way to get the EndpointGroup. Getting data from DB
                 .setCORS()
                 .setApiExceptionHandling()
                 .startServer(7777)

@@ -16,9 +16,9 @@ public class P04FullCRUDDemo {
                 .getInstance()
                 .initiateServer()
                 .startServer(7007)
-                .setRoutes(new RestRoutes().getOpenRoutes())
+                .setRoute(new RestRoutes().getOpenRoutes())
                 .setCORS()
-                .setRoutes(()->{
+                .setRoute(()->{
                     path("/test", () -> {
                         get("/", ctx->ctx.contentType("text/plain").result("Hello World"));
                         get("/{id}", ctx->ctx.contentType("text/plain").result("Hello World "+ctx.pathParam("id")));

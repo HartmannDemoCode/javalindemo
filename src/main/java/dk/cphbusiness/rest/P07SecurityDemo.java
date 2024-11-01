@@ -17,8 +17,8 @@ public class P07SecurityDemo {
         ApplicationConfig
                 .getInstance()
                 .initiateServer()
-                .setRoutes(SecurityRoutes.getSecurityRoutes())
-                .setRoutes(SecurityRoutes.getSecuredRoutes())
+                .setRoute(SecurityRoutes.getSecurityRoutes())
+                .setRoute(SecurityRoutes.getSecuredRoutes())
                 .startServer(7007)
                 .checkSecurityRoles()
                 .setErrorHandling()

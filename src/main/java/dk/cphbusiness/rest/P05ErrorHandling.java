@@ -19,8 +19,8 @@ public class P05ErrorHandling {
                 .getInstance()
                 .initiateServer()
                 .startServer(7007)
-                .setRoutes(restRoutes.getOpenRoutes())
-                .setRoutes(() -> {
+                .setRoute(restRoutes.getOpenRoutes())
+                .setRoute(() -> {
                     path("/test", () -> {
                         get("/", ctx -> ctx.contentType("text/plain").result("Hello World"));
                         get("/{id}", ctx -> ctx.contentType("text/plain").result("Hello World " + ctx.pathParam("id")));

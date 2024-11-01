@@ -18,7 +18,6 @@ import io.restassured.path.json.JsonPath;
 import io.restassured.response.Response;
 import io.restassured.response.ResponseBody;
 import jakarta.persistence.EntityManagerFactory;
-import junit.framework.Assert;
 import org.eclipse.jetty.http.HttpStatus;
 import org.junit.jupiter.api.*;
 
@@ -67,10 +66,10 @@ class PersonHandlerTest {
                 .checkSecurityRoles()
 //                .setErrorHandling() // This one overrules the setApiExeptionHandling
                 .setGeneralExceptionHandling()
-                .setRoutes(restRoutes.getOpenRoutes())
-                .setRoutes(SecurityRoutes.getSecurityRoutes())
-                .setRoutes(SecurityRoutes.getSecuredRoutes())
-                .setRoutes(restRoutes.personEntityRoutes) // A different way to get the EndpointGroup. Getting data from DB
+                .setRoute(restRoutes.getOpenRoutes())
+                .setRoute(SecurityRoutes.getSecurityRoutes())
+                .setRoute(SecurityRoutes.getSecuredRoutes())
+                .setRoute(restRoutes.personEntityRoutes) // A different way to get the EndpointGroup. Getting data from DB
                 .setCORS()
                 .setApiExceptionHandling()
                 .startServer(7777)
