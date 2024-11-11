@@ -29,3 +29,9 @@ Authorization: Bearer {{token}}
 ###
 GET http://localhost:7007/api/routes
 Authorization: Bearer {{token}}
+###
+GET http://localhost:7007/api/auth/verify
+Authorization: Bearer {{token}}
+###
+GET http://localhost:7007/api/auth/tokenlifespan
+Authorization: Bearer {{token}}

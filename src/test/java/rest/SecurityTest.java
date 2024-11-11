@@ -123,9 +123,41 @@ public class SecurityTest {
                 .header("Authorization", "Bearer "+securityToken)
                 .when()
                 .get("/protected/admin_demo").then()
+                .log().all()
                 .statusCode(403)
-                .body("msg", equalTo("User was not authorized with roles: [user]. Needed roles are: [ADMIN]"));
+                .body("title", equalTo("User was not authorized with roles: [user]. Needed roles are: [ADMIN]"));
     }
+
+    @Test
+    @DisplayName("Test verify endpoint")
+    public void testVerifyEndpoint() {
+        login("user", "user123");
+        given()
+                .contentType("application/json")
+                .accept("application/json")
+                .header("Authorization", "Bearer "+securityToken)
+                .when()
+                .get("/auth/verify").then()
+                .log().all()
+                .statusCode(200)
+                .body("msg", equalTo("Token is valid"));
+    }
+
+    @Test
+    @DisplayName("Test time to live")
+    public void testTimeToLive() {
+        login("user", "user123");
+        given()
+                .contentType("application/json")
+                .accept("application/json")
+                .header("Authorization", "Bearer "+securityToken)
+                .when()
+                .get("/auth/tokenlifespan").then()
+                .log().all()
+                .statusCode(200)
+                .body("secondsToLive", is(both(greaterThan(1700)).and(lessThanOrEqualTo(1800))));
+    }
+
 
     @Test
     @DisplayName("Test CORS Headers")

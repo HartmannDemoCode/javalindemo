@@ -35,8 +35,6 @@ public class ApplicationConfig {
     }
 
     public ApplicationConfig initiateServer() {
-        System.out.println("Working Directory = " + System.getProperty("user.dir"));
-        String separator = System.getProperty("file.separator");
         app = Javalin.create(config -> {
             javalinConfig = config;
             config.bundledPlugins.enableDevLogging(); // enables extensive development logging in terminal

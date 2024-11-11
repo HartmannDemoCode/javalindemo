@@ -158,15 +158,4 @@ class DAOTest {
         person = personDao.findById(p1.getId());
         assert person.getAddress() == null;
     }
-    @SneakyThrows
-    @Test
-    @DisplayName("Test that we can create a token")
-    void createToken() {
-        UserDTO verified = securityDAO.getVerifiedUser("user", "user123");
-        var token = securityController.createToken(verified);
-        System.out.println("TOKEN: "+token);
-        assert token != null;
-    }
-
-
 }

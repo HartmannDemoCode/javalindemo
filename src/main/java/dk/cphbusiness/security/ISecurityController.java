@@ -14,7 +14,6 @@ public interface ISecurityController {
     Handler register(); // to get a user
     Handler authenticate(); // to verify roles inside token
     Handler authorize();
-
-    String createToken(UserDTO user) throws Exception;
-    UserDTO verifyToken(String token) throws Exception;
+    Handler verify(); // to verify a token
+    Handler timeToLive(); // to check how long a token is valid
 }
