@@ -47,7 +47,7 @@ POST http://{{url}}/auth/login
 
 {
     "username": "user6",
-    "password": "test123"
+    "password": "test1234"
 }
 > {%
  client.global.set("token", response.body.token);
