@@ -6,6 +6,8 @@ import dk.cphbusiness.security.entities.Role;
 import dk.cphbusiness.security.entities.User;
 import dk.cphbusiness.exceptions.ValidationException;
 import jakarta.persistence.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.stream.Collectors;
 
@@ -18,6 +20,7 @@ public class SecurityDAO implements ISecurityDAO {
 
     private static ISecurityDAO instance;
     private static EntityManagerFactory emf;
+    private Logger logger = LoggerFactory.getLogger(SecurityDAO.class);
 
     public SecurityDAO(EntityManagerFactory _emf) {
         emf = _emf;
@@ -57,7 +60,7 @@ public class SecurityDAO implements ISecurityDAO {
             em.getTransaction().commit();
             return new UserDTO(userEntity.getUsername(), userEntity.getRoles().stream().map(r -> r.getRoleName()).collect(Collectors.toSet()));
         }catch (Exception e){
-            e.printStackTrace();
+            logger.error("Error creating user", e);
             throw new ApiException(400, e.getMessage());
         }
     }

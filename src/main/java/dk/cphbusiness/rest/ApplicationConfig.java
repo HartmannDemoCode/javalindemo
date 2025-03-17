@@ -12,6 +12,8 @@ import io.javalin.http.Context;
 import static io.javalin.apibuilder.ApiBuilder.path;
 
 import dk.cphbusiness.security.SecurityRoutes.Role;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Purpose: To configure the Javalin server
@@ -19,6 +21,7 @@ import dk.cphbusiness.security.SecurityRoutes.Role;
  */
 public class ApplicationConfig {
     private ObjectMapper jsonMapper = new ObjectMapper();
+    private Logger logger = LoggerFactory.getLogger(ApplicationConfig.class);
     private static ApplicationConfig appConfig;
     private static JavalinConfig javalinConfig;
     private static Javalin app;
@@ -90,7 +93,6 @@ public class ApplicationConfig {
     }
 
     public ApplicationConfig setApiExceptionHandling() {
-        // Might be overruled by the setErrorHandling method
         app.exception(ApiException.class, (e, ctx) -> {
             int statusCode = e.getStatusCode();
             ObjectNode on = jsonMapper
@@ -119,18 +121,12 @@ public class ApplicationConfig {
 
     public ApplicationConfig setGeneralExceptionHandling() {
         app.exception(Exception.class, (e, ctx) -> {
-            e.printStackTrace();
+            logger.error("An exception occurred: " + e.getMessage());
             ctx.result(e.getMessage());
         });
         return appConfig;
     }
 
-    //    public ApplicationConfig setStaticFiles(String dirPath){
-//        app.updateConfig(config -> {
-//            config.staticFiles.add("/public", Location.EXTERNAL);
-//        });
-//        return appConfig;
-//    }
     public ApplicationConfig beforeFilter() {
         app.before(ctx -> {
             String pathInfo = ctx.req().getPathInfo();

@@ -6,6 +6,8 @@ import jakarta.persistence.EntityManagerFactory;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.persistence.TypedQuery;
 import org.hibernate.exception.ConstraintViolationException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.lang.model.UnknownEntityException;
 import java.util.Set;
@@ -21,6 +23,7 @@ abstract class ADAO<T extends IJPAEntity> implements IDAO<T> {
     private EntityManagerFactory emf;
     private final Class<T> entityType;
     private final String entityName;
+    private final Logger logger = LoggerFactory.getLogger(ADAO.class);
     protected ADAO(Class<T> entityClass, EntityManagerFactory emf) {
         // When creating a DAO, the entity class must be specified to use in queries
         this.entityType = entityClass;
@@ -48,7 +51,7 @@ abstract class ADAO<T extends IJPAEntity> implements IDAO<T> {
             Set<T> result = query.getResultList().stream().collect(Collectors.toSet());
             return result;
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("Error getting all entities", e);
         }
         return null;
     }
@@ -60,7 +63,7 @@ abstract class ADAO<T extends IJPAEntity> implements IDAO<T> {
             em.getTransaction().commit();
             return t;
         } catch (ConstraintViolationException e) {
-            System.out.println("Constraint violation: " + e.getMessage());
+            logger.error("Constraint violation: " + e.getMessage());
             return null;
         }
     }
@@ -76,7 +79,7 @@ abstract class ADAO<T extends IJPAEntity> implements IDAO<T> {
             em.getTransaction().commit();
             return merged;
         } catch (ConstraintViolationException e) {
-            System.out.println("Constraint violation: " + e.getMessage());
+            logger.error("Constraint violation: " + e.getMessage());
             return null;
         }
     }
@@ -91,7 +94,7 @@ abstract class ADAO<T extends IJPAEntity> implements IDAO<T> {
             em.remove(found);
             em.getTransaction().commit();
         } catch (ConstraintViolationException e) {
-            e.printStackTrace();
+            logger.error("Constraint violation: " + e.getMessage());
         }
     }
 
@@ -112,11 +115,11 @@ abstract class ADAO<T extends IJPAEntity> implements IDAO<T> {
             }
             catch (Exception e) {
                 System.out.println("Sequence is missinga: " + entityName + "_id_seq");
-                e.printStackTrace();
+                logger.error("Sequence is missing: " + entityName + "_id_seq");
             }
         } catch (ConstraintViolationException e) {
             System.out.println("Constraint violation: ");
-            e.printStackTrace();
+            logger.error("Constraint violation: " + e.getMessage());
         }
     }
 

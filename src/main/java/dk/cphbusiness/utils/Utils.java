@@ -5,6 +5,8 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import dk.cphbusiness.exceptions.ApiException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -15,6 +17,7 @@ import java.util.Properties;
  * Author: Thomas Hartmann
  */
 public class Utils {
+    private static Logger logger = LoggerFactory.getLogger(Utils.class);
     public static void main(String[] args) {
         System.out.println(getPropertyValue("db.name", "properties-from-pom.properties"));
     }
@@ -26,7 +29,7 @@ public class Utils {
             prop.load(is);
             return prop.getProperty(propName);
         } catch (IOException ex) {
-            ex.printStackTrace();
+            logger.error("Could not read property " + propName + " from " + ressourceName, ex);
             throw new ApiException(500, String.format("Could not read property %s. Did you remember to build the project with MAVEN?", propName));
         }
     }

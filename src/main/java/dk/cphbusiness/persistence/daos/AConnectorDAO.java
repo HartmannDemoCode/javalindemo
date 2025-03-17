@@ -4,6 +4,9 @@ import dk.cphbusiness.exceptions.EntityNotFoundException;
 import dk.cphbusiness.persistence.model.IAssociableEntity;
 import dk.cphbusiness.persistence.model.IJPAEntity;
 import jakarta.persistence.EntityManagerFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 
 //interface IJPAAssociationEntity<T, A> extends IJPAEntity<T>, IAssociableEntity<A>{ } // I AM Type T and I would like to associate with type A. Combine the 2 interfaces to use below, in order to give type A both a getId() and addAssociation() method and add and remove association methods.
 
@@ -15,6 +18,7 @@ abstract class AConnectorDAO<T extends IJPAEntity, A extends IAssociableEntity &
     private EntityManagerFactory emf;
     private final Class<T> entityType;
     private final Class<A> associationType;
+    private Logger logger = LoggerFactory.getLogger(AConnectorDAO.class);
 //    private final String entityName;
     protected AConnectorDAO(Class<T> entityClass, Class<A> associationType, EntityManagerFactory emf) {
         // When creating a DAO, the entity class must be specified to use in queries
@@ -44,7 +48,7 @@ abstract class AConnectorDAO<T extends IJPAEntity, A extends IAssociableEntity &
             dbAssociation.addAssociation(dbEntity);
             em.getTransaction().commit();
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("Error adding association", e);
         }
 
     }
@@ -60,7 +64,7 @@ abstract class AConnectorDAO<T extends IJPAEntity, A extends IAssociableEntity &
             dbAssociation.removeAssociation(dbEntity);
             em.getTransaction().commit();
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("Error removing association", e);
         }
     }
 
