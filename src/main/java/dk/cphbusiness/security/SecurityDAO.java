@@ -41,7 +41,7 @@ public class SecurityDAO implements ISecurityDAO {
     }
 
     @Override
-    public User createUser(String username, String password) {
+    public UserDTO createUser(String username, String password) {
         try (EntityManager em = getEntityManager()) {
             User userEntity = em.find(User.class, username);
             if (userEntity != null)
@@ -55,7 +55,7 @@ public class SecurityDAO implements ISecurityDAO {
             userEntity.addRole(userRole);
             em.persist(userEntity);
             em.getTransaction().commit();
-            return userEntity;
+            return new UserDTO(userEntity.getUsername(), userEntity.getRoles().stream().map(r -> r.getRoleName()).collect(Collectors.toSet()));
         }catch (Exception e){
             e.printStackTrace();
             throw new ApiException(400, e.getMessage());
@@ -63,26 +63,26 @@ public class SecurityDAO implements ISecurityDAO {
     }
 
     @Override
-    public User addRoleToUser(String username, String role) {
+    public UserDTO addRoleToUser(String username, String role) {
         try(EntityManager em = emf.createEntityManager()){
             User foundUser = em.find(User.class, username);
             Role foundRole = em.find(Role.class, role);
             em.getTransaction().begin();
             foundUser.addRole(foundRole);
             em.getTransaction().commit();
-            return foundUser;
+            return new UserDTO(foundUser.getUsername(), foundUser.getRoles().stream().map(r -> r.getRoleName()).collect(Collectors.toSet()));
         }
     }
 
     @Override
-    public User removeRoleFromUser(String username, String role) {
+    public UserDTO removeRoleFromUser(String username, String role) {
         try(EntityManager em = emf.createEntityManager()){
             User foundUser = em.find(User.class, username);
             Role foundRole = em.find(Role.class, role);
             em.getTransaction().begin();
             foundUser.removeRole(role);
             em.getTransaction().commit();
-            return foundUser;
+            return new UserDTO(foundUser.getUsername(), foundUser.getRoles().stream().map(r -> r.getRoleName()).collect(Collectors.toSet()));
         }
     }
 }

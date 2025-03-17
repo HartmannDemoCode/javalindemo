@@ -9,7 +9,7 @@ import dk.cphbusiness.exceptions.ValidationException;
  */
 public interface ISecurityDAO {
     UserDTO getVerifiedUser(String username, String password) throws ValidationException;
-    User createUser(String username, String password);
-    User addRoleToUser(String username, String role);
-    User removeRoleFromUser(String username, String role);
+    UserDTO createUser(String username, String password);
+    UserDTO addRoleToUser(String username, String role);
+    UserDTO removeRoleFromUser(String username, String role);
 }

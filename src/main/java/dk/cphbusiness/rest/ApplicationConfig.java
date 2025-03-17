@@ -73,8 +73,8 @@ public class ApplicationConfig {
 
     // Adding below methods to ApplicationConfig, means that EVERY ROUTE will be checked for security roles. So open routes must have a role of ANYONE
     public ApplicationConfig checkSecurityRoles() {
-        app.beforeMatched(securityController.authenticate()); // check if there is a valid token in the header
-        app.beforeMatched(securityController.authorize()); // check if the user has the required role
+        app.beforeMatched(securityController::authenticate); // check if there is a valid token in the header
+        app.beforeMatched(securityController::authorize); // check if the user has the required role
         return appConfig;
     }
 

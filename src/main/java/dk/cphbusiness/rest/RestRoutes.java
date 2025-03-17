@@ -32,21 +32,11 @@ public class RestRoutes {
             });
         };
     }
-//    public EndpointGroup getProtectedPersonRoutes(){
-//        return () -> {
-//            path("/person", () -> {
-//                before(securityController.authenticate()); // This means that there MUST be a token in the header
-//                post("/", ctx -> personController.create(), Role.USER);
-//                put("/{id}", ctx -> personController.update(), Role.USER);
-//                delete("/{id}", ctx -> personController.delete(), Role.USER);
-//            });
-//        };
-//    }
 
     // Show a different way of getting an EndpointGroup with a lambda expression
     public EndpointGroup personEntityRoutes = ()->{
       path("/person",()-> {
-          before(securityController.authenticate());
+          before(securityController::authenticate);
           get("/", personEntityController.getAll(), Role.ANYONE);
           get("/resetdata", personEntityController.resetData(), Role.ADMIN);
           get("/{id}", personEntityController.getById(), Role.ANYONE);
@@ -58,8 +48,6 @@ public class RestRoutes {
           post("connect/phone/{personId}/{phoneId}", personEntityController.connectPersonToPhone(), Role.ADMIN);
           post("connect/hobby/{personId}/{hobbyId}", personEntityController.connectPersonToHobby(), Role.ADMIN);
 
-          // For RestAssured Tests
-//          get("/person/")
       });
     };
 }
